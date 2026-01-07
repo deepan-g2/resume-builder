@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50;
+  }
+}
+
+/* Print styles for pixel-perfect PDF export */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  /* Hide app header (navigation) when printing, but keep resume header */
+  body > div:first-child > header {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  main > div {
+    display: block !important;
+    gap: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide editor panel */
+  main > div > div:first-child {
+    display: none !important;
+  }
+
+  /* Make preview full width */
+  main > div > div:last-child {
+    padding: 0 !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Prevent page breaks inside sections */
+  section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Prevent orphaned headers */
+  h1, h2, h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Keep experience items together */
+  section > div > div {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+/* Prevent sections from breaking across pages */
+.page-break-avoid {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
