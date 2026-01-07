@@ -8,6 +8,12 @@ export const initialResumeData = {
     website: "johndoe.com",
     photo: null
   },
+  sectionVisibility: {
+    summary: true,
+    experience: true,
+    education: true,
+    skills: true
+  },
   summary: "Experienced professional with a proven track record in delivering high-quality results. Skilled in problem-solving, teamwork, and effective communication.",
   experience: [
     {

@@ -145,7 +145,7 @@ const modernStyles = StyleSheet.create({
 
 // Modern Template Component
 export function ModernTemplate({ resumeData }) {
-  const { personalInfo, summary, experience, education, skills } = resumeData
+  const { personalInfo, summary, experience, education, skills, sectionVisibility = {} } = resumeData
 
   return (
     <Document>
@@ -199,7 +199,7 @@ export function ModernTemplate({ resumeData }) {
         {/* Content */}
         <View style={modernStyles.content}>
           {/* Summary */}
-          {summary && (
+          {summary && sectionVisibility.summary !== false && (
             <View style={modernStyles.section} wrap={false}>
               <Text style={modernStyles.sectionTitle}>Professional Summary</Text>
               <Text style={modernStyles.summaryText}>{summary}</Text>
@@ -207,7 +207,7 @@ export function ModernTemplate({ resumeData }) {
           )}
 
           {/* Experience */}
-          {experience.length > 0 && (
+          {experience.length > 0 && sectionVisibility.experience !== false && (
             <View style={modernStyles.section}>
               <Text style={modernStyles.sectionTitle}>Work Experience</Text>
               {experience.map((exp, index) => (
@@ -235,7 +235,7 @@ export function ModernTemplate({ resumeData }) {
           )}
 
           {/* Education */}
-          {education.length > 0 && (
+          {education.length > 0 && sectionVisibility.education !== false && (
             <View style={modernStyles.section}>
               <Text style={modernStyles.sectionTitle}>Education</Text>
               {education.map((edu) => (
@@ -255,7 +255,7 @@ export function ModernTemplate({ resumeData }) {
           )}
 
           {/* Skills */}
-          {skills.length > 0 && (
+          {skills.length > 0 && sectionVisibility.skills !== false && (
             <View style={modernStyles.section} wrap={false}>
               <Text style={modernStyles.sectionTitle}>Skills</Text>
               <View style={modernStyles.skillsContainer}>
@@ -407,7 +407,7 @@ const classicStyles = StyleSheet.create({
 
 // Classic Template Component
 export function ClassicTemplate({ resumeData }) {
-  const { personalInfo, summary, experience, education, skills } = resumeData
+  const { personalInfo, summary, experience, education, skills, sectionVisibility = {} } = resumeData
 
   return (
     <Document>
@@ -435,7 +435,7 @@ export function ClassicTemplate({ resumeData }) {
         </View>
 
         {/* Summary */}
-        {summary && (
+        {summary && sectionVisibility.summary !== false && (
           <View style={classicStyles.section} wrap={false}>
             <Text style={classicStyles.sectionTitle}>Professional Summary</Text>
             <Text style={classicStyles.summaryText}>{summary}</Text>
@@ -443,7 +443,7 @@ export function ClassicTemplate({ resumeData }) {
         )}
 
         {/* Experience */}
-        {experience.length > 0 && (
+        {experience.length > 0 && sectionVisibility.experience !== false && (
           <View style={classicStyles.section}>
             <Text style={classicStyles.sectionTitle}>Professional Experience</Text>
             {experience.map((exp) => (
@@ -472,7 +472,7 @@ export function ClassicTemplate({ resumeData }) {
         )}
 
         {/* Education */}
-        {education.length > 0 && (
+        {education.length > 0 && sectionVisibility.education !== false && (
           <View style={classicStyles.section}>
             <Text style={classicStyles.sectionTitle}>Education</Text>
             {education.map((edu) => (
@@ -492,7 +492,7 @@ export function ClassicTemplate({ resumeData }) {
         )}
 
         {/* Skills */}
-        {skills.length > 0 && (
+        {skills.length > 0 && sectionVisibility.skills !== false && (
           <View style={classicStyles.section} wrap={false}>
             <Text style={classicStyles.sectionTitle}>Skills</Text>
             <Text style={classicStyles.skills}>{skills.join(' • ')}</Text>
@@ -615,7 +615,7 @@ const minimalStyles = StyleSheet.create({
 
 // Minimal Template Component
 export function MinimalTemplate({ resumeData }) {
-  const { personalInfo, summary, experience, education, skills } = resumeData
+  const { personalInfo, summary, experience, education, skills, sectionVisibility = {} } = resumeData
 
   return (
     <Document>
@@ -643,14 +643,14 @@ export function MinimalTemplate({ resumeData }) {
         </View>
 
         {/* Summary */}
-        {summary && (
+        {summary && sectionVisibility.summary !== false && (
           <View style={minimalStyles.summaryText} wrap={false}>
             <Text>{summary}</Text>
           </View>
         )}
 
         {/* Experience */}
-        {experience.length > 0 && (
+        {experience.length > 0 && sectionVisibility.experience !== false && (
           <View style={minimalStyles.section}>
             <Text style={minimalStyles.sectionTitle}>Experience</Text>
             {experience.map((exp) => (
@@ -675,7 +675,7 @@ export function MinimalTemplate({ resumeData }) {
         )}
 
         {/* Education */}
-        {education.length > 0 && (
+        {education.length > 0 && sectionVisibility.education !== false && (
           <View style={minimalStyles.section}>
             <Text style={minimalStyles.sectionTitle}>Education</Text>
             {education.map((edu) => (
@@ -692,7 +692,7 @@ export function MinimalTemplate({ resumeData }) {
         )}
 
         {/* Skills */}
-        {skills.length > 0 && (
+        {skills.length > 0 && sectionVisibility.skills !== false && (
           <View style={minimalStyles.section} wrap={false}>
             <Text style={minimalStyles.sectionTitle}>Skills</Text>
             <Text style={minimalStyles.skills}>{skills.join(', ')}</Text>

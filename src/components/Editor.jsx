@@ -1,6 +1,31 @@
-import { Plus, Trash2, Upload, X } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, Trash2, Upload, X, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react'
 
 export default function Editor({ resumeData, setResumeData }) {
+  const [collapsedSections, setCollapsedSections] = useState({
+    personalInfo: false,
+    summary: false,
+    experience: false,
+    education: false,
+    skills: false
+  })
+
+  const toggleSection = (section) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
+
+  const toggleVisibility = (section) => {
+    setResumeData({
+      ...resumeData,
+      sectionVisibility: {
+        ...resumeData.sectionVisibility,
+        [section]: !resumeData.sectionVisibility[section]
+      }
+    })
+  }
   const updatePersonalInfo = (field, value) => {
     setResumeData({
       ...resumeData,
@@ -131,13 +156,61 @@ export default function Editor({ resumeData, setResumeData }) {
     })
   }
 
+  // Section Header Component
+  const SectionHeader = ({ title, section, hasVisibilityToggle = false, onAdd = null }) => (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center space-x-3 flex-1">
+        <button
+          onClick={() => toggleSection(section)}
+          className="text-blue-600 hover:text-blue-700 transition-colors"
+        >
+          {collapsedSections[section] ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
+        </button>
+        <h3 className="text-lg font-semibold text-blue-600">{title}</h3>
+        {hasVisibilityToggle && (
+          <button
+            onClick={() => toggleVisibility(section)}
+            className={`flex items-center space-x-1 px-2 py-1 text-xs rounded-lg transition-colors ${
+              resumeData.sectionVisibility[section]
+                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+            title={resumeData.sectionVisibility[section] ? 'Visible on resume' : 'Hidden on resume'}
+          >
+            {resumeData.sectionVisibility[section] ? (
+              <>
+                <Eye className="w-3 h-3" />
+                <span>Visible</span>
+              </>
+            ) : (
+              <>
+                <EyeOff className="w-3 h-3" />
+                <span>Hidden</span>
+              </>
+            )}
+          </button>
+        )}
+      </div>
+      {onAdd && (
+        <button
+          onClick={onAdd}
+          className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add</span>
+        </button>
+      )}
+    </div>
+  )
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Edit Resume</h2>
 
       {/* Personal Information */}
-      <section>
-        <h3 className="text-lg font-semibold mb-4 text-blue-600">Personal Information</h3>
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader title="Personal Information" section="personalInfo" />
+        {!collapsedSections.personalInfo && (
         <div className="space-y-4">
           <input
             type="text"
@@ -220,11 +293,13 @@ export default function Editor({ resumeData, setResumeData }) {
             <p className="mt-2 text-xs text-gray-500">Recommended: Square image, at least 400x400px</p>
           </div>
         </div>
+        )}
       </section>
 
       {/* Professional Summary */}
-      <section>
-        <h3 className="text-lg font-semibold mb-4 text-blue-600">Professional Summary</h3>
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader title="Professional Summary" section="summary" hasVisibilityToggle={true} />
+        {!collapsedSections.summary && (
         <textarea
           placeholder="Write a brief summary about yourself..."
           value={resumeData.summary}
@@ -232,21 +307,18 @@ export default function Editor({ resumeData, setResumeData }) {
           rows={4}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
+        )}
       </section>
 
       {/* Experience */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-blue-600">Work Experience</h3>
-          <button
-            onClick={addExperience}
-            className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Experience</span>
-          </button>
-        </div>
-
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Work Experience"
+          section="experience"
+          hasVisibilityToggle={true}
+          onAdd={addExperience}
+        />
+        {!collapsedSections.experience && (
         <div className="space-y-6">
           {resumeData.experience.map((exp, expIndex) => (
             <div key={exp.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
@@ -341,21 +413,18 @@ export default function Editor({ resumeData, setResumeData }) {
             </div>
           ))}
         </div>
+        )}
       </section>
 
       {/* Education */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-blue-600">Education</h3>
-          <button
-            onClick={addEducation}
-            className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Education</span>
-          </button>
-        </div>
-
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Education"
+          section="education"
+          hasVisibilityToggle={true}
+          onAdd={addEducation}
+        />
+        {!collapsedSections.education && (
         <div className="space-y-4">
           {resumeData.education.map((edu, eduIndex) => (
             <div key={edu.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
@@ -409,19 +478,24 @@ export default function Editor({ resumeData, setResumeData }) {
             </div>
           ))}
         </div>
+        )}
       </section>
 
       {/* Skills */}
-      <section>
-        <h3 className="text-lg font-semibold mb-4 text-blue-600">Skills</h3>
-        <textarea
-          placeholder="Enter skills separated by commas (e.g., JavaScript, React, Node.js)"
-          value={resumeData.skills.join(', ')}
-          onChange={(e) => updateSkills(e.target.value)}
-          rows={3}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        <p className="mt-2 text-sm text-gray-500">Separate skills with commas</p>
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader title="Skills" section="skills" hasVisibilityToggle={true} />
+        {!collapsedSections.skills && (
+        <>
+          <textarea
+            placeholder="Enter skills separated by commas (e.g., JavaScript, React, Node.js)"
+            value={resumeData.skills.join(', ')}
+            onChange={(e) => updateSkills(e.target.value)}
+            rows={3}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <p className="mt-2 text-sm text-gray-500">Separate skills with commas</p>
+        </>
+        )}
       </section>
     </div>
   )
