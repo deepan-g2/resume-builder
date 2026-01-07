@@ -2,13 +2,61 @@ import { useState, useEffect } from 'react'
 import { Download, Save, FileText } from 'lucide-react'
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
 import Editor from './components/Editor'
-import { ModernTemplate, ClassicTemplate, MinimalTemplate } from './components/PDFTemplates'
+import { ModernTemplate, ClassicTemplate, MinimalTemplate, ExecutiveTemplate, CreativeTemplate, TechnicalTemplate } from './components/PDFTemplates'
 import { initialResumeData } from './data/resumeData'
 
 function App() {
   const [resumeData, setResumeData] = useState(() => {
     const saved = localStorage.getItem('resumeData')
-    return saved ? JSON.parse(saved) : initialResumeData
+    if (saved) {
+      const parsedData = JSON.parse(saved)
+      // Add backward compatibility for old data without sectionVisibility
+      if (!parsedData.sectionVisibility) {
+        parsedData.sectionVisibility = {
+          summary: true,
+          experience: true,
+          education: true,
+          skills: true,
+          projects: true,
+          certifications: true,
+          languages: true,
+          volunteer: true,
+          awards: true
+        }
+      }
+      // Add default empty arrays for new sections if they don't exist
+      if (!parsedData.projects) parsedData.projects = []
+      if (!parsedData.certifications) parsedData.certifications = []
+      if (!parsedData.languages) parsedData.languages = []
+      if (!parsedData.volunteer) parsedData.volunteer = []
+      if (!parsedData.awards) parsedData.awards = []
+      // Add customization defaults
+      if (!parsedData.customization) {
+        parsedData.customization = {
+          accentColor: "#2563eb",
+          fontFamily: "Helvetica",
+          fontSize: 11,
+          lineSpacing: 1.5,
+          paragraphSpacing: 12,
+          pageMargin: 40,
+          showPageBorder: false,
+          borderWidth: 2,
+          borderColor: "#e5e7eb"
+        }
+      } else {
+        // Add missing customization fields
+        if (!parsedData.customization.fontFamily) parsedData.customization.fontFamily = "Helvetica"
+        if (!parsedData.customization.fontSize) parsedData.customization.fontSize = 11
+        if (!parsedData.customization.lineSpacing) parsedData.customization.lineSpacing = 1.5
+        if (!parsedData.customization.paragraphSpacing) parsedData.customization.paragraphSpacing = 12
+        if (!parsedData.customization.pageMargin) parsedData.customization.pageMargin = 40
+        if (parsedData.customization.showPageBorder === undefined) parsedData.customization.showPageBorder = false
+        if (!parsedData.customization.borderWidth) parsedData.customization.borderWidth = 2
+        if (!parsedData.customization.borderColor) parsedData.customization.borderColor = "#e5e7eb"
+      }
+      return parsedData
+    }
+    return initialResumeData
   })
 
   const [template, setTemplate] = useState('modern')
@@ -31,6 +79,12 @@ function App() {
         return <ClassicTemplate resumeData={resumeData} />
       case 'minimal':
         return <MinimalTemplate resumeData={resumeData} />
+      case 'executive':
+        return <ExecutiveTemplate resumeData={resumeData} />
+      case 'creative':
+        return <CreativeTemplate resumeData={resumeData} />
+      case 'technical':
+        return <TechnicalTemplate resumeData={resumeData} />
       default:
         return <ModernTemplate resumeData={resumeData} />
     }
@@ -73,7 +127,28 @@ function App() {
                 <option value="modern">Modern</option>
                 <option value="classic">Classic</option>
                 <option value="minimal">Minimal</option>
+                <option value="executive">Executive</option>
+                <option value="creative">Creative</option>
+                <option value="technical">Technical</option>
               </select>
+
+              {/* Color Picker */}
+              <div className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg">
+                <label htmlFor="accent-color" className="text-sm font-medium text-gray-700">Color:</label>
+                <input
+                  id="accent-color"
+                  type="color"
+                  value={resumeData.customization?.accentColor || "#2563eb"}
+                  onChange={(e) => setResumeData({
+                    ...resumeData,
+                    customization: {
+                      ...resumeData.customization,
+                      accentColor: e.target.value
+                    }
+                  })}
+                  className="w-10 h-8 border-0 rounded cursor-pointer"
+                />
+              </div>
 
               {/* Toggle Editor */}
               <button
