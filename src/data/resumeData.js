@@ -12,12 +12,14 @@ export const initialResumeData = {
     accentColor: "#2563eb", // Default blue
     fontFamily: "Helvetica", // Helvetica, Times-Roman, Courier
     fontSize: 11, // Base font size (10-14)
+    fontWeight: "normal", // normal or bold
     lineSpacing: 1.5, // Line height multiplier (1.2-2.0)
     paragraphSpacing: 12, // Spacing between paragraphs (8-20)
     pageMargin: 40, // Page margins in pixels (20-60)
     showPageBorder: false, // Show border around page
     borderWidth: 2, // Border width (1-4)
-    borderColor: "#e5e7eb" // Border color
+    borderColor: "#e5e7eb", // Border color
+    sectionOrder: ["summary", "experience", "projects", "education", "certifications", "skills", "languages", "volunteer", "awards"]
   },
   sectionVisibility: {
     summary: true,

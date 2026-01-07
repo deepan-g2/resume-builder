@@ -47,12 +47,14 @@ function App() {
         // Add missing customization fields
         if (!parsedData.customization.fontFamily) parsedData.customization.fontFamily = "Helvetica"
         if (!parsedData.customization.fontSize) parsedData.customization.fontSize = 11
+        if (!parsedData.customization.fontWeight) parsedData.customization.fontWeight = "normal"
         if (!parsedData.customization.lineSpacing) parsedData.customization.lineSpacing = 1.5
         if (!parsedData.customization.paragraphSpacing) parsedData.customization.paragraphSpacing = 12
         if (!parsedData.customization.pageMargin) parsedData.customization.pageMargin = 40
         if (parsedData.customization.showPageBorder === undefined) parsedData.customization.showPageBorder = false
         if (!parsedData.customization.borderWidth) parsedData.customization.borderWidth = 2
         if (!parsedData.customization.borderColor) parsedData.customization.borderColor = "#e5e7eb"
+        if (!parsedData.customization.sectionOrder) parsedData.customization.sectionOrder = ["summary", "experience", "projects", "education", "certifications", "skills", "languages", "volunteer", "awards"]
       }
       return parsedData
     }
@@ -132,22 +134,47 @@ function App() {
                 <option value="technical">Technical</option>
               </select>
 
-              {/* Color Picker */}
+              {/* Quick Color Presets */}
               <div className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg">
-                <label htmlFor="accent-color" className="text-sm font-medium text-gray-700">Color:</label>
-                <input
-                  id="accent-color"
-                  type="color"
-                  value={resumeData.customization?.accentColor || "#2563eb"}
-                  onChange={(e) => setResumeData({
-                    ...resumeData,
-                    customization: {
-                      ...resumeData.customization,
-                      accentColor: e.target.value
-                    }
-                  })}
-                  className="w-10 h-8 border-0 rounded cursor-pointer"
-                />
+                <span className="text-xs font-medium text-gray-700">Colors:</span>
+                <div className="flex space-x-1">
+                  {[
+                    { name: 'Blue', color: '#2563eb' },
+                    { name: 'Red', color: '#dc2626' },
+                    { name: 'Green', color: '#059669' },
+                    { name: 'Purple', color: '#7c3aed' },
+                    { name: 'Orange', color: '#ea580c' },
+                    { name: 'Teal', color: '#0d9488' },
+                    { name: 'Pink', color: '#db2777' },
+                  ].map(({ name, color }) => (
+                    <button
+                      key={color}
+                      onClick={() => setResumeData({
+                        ...resumeData,
+                        customization: {
+                          ...resumeData.customization,
+                          accentColor: color
+                        }
+                      })}
+                      className="w-6 h-6 rounded-full border-2 border-gray-300 hover:border-gray-500 transition-all hover:scale-110"
+                      style={{ backgroundColor: color }}
+                      title={name}
+                    />
+                  ))}
+                  <input
+                    type="color"
+                    value={resumeData.customization?.accentColor || "#2563eb"}
+                    onChange={(e) => setResumeData({
+                      ...resumeData,
+                      customization: {
+                        ...resumeData.customization,
+                        accentColor: e.target.value
+                      }
+                    })}
+                    className="w-6 h-6 border-2 border-gray-300 rounded cursor-pointer"
+                    title="Custom color"
+                  />
+                </div>
               </div>
 
               {/* Toggle Editor */}
@@ -205,7 +232,12 @@ function App() {
 
           {/* Preview Panel - PDF Viewer */}
           <div className={`bg-white rounded-lg shadow-lg overflow-hidden ${showEditor ? '' : 'mx-auto max-w-4xl'}`} style={{ height: 'calc(100vh - 140px)' }}>
-            <PDFViewer width="100%" height="100%" showToolbar={false}>
+            <PDFViewer
+              width="100%"
+              height="100%"
+              showToolbar={false}
+              key={JSON.stringify(resumeData.customization?.sectionOrder || [])}
+            >
               {getPDFComponent()}
             </PDFViewer>
           </div>

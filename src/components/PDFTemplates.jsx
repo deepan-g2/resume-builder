@@ -6,6 +6,7 @@ const createModernStyles = (customization = {}) => {
     accentColor = '#2563eb',
     fontFamily = 'Helvetica',
     fontSize = 11,
+    fontWeight = 'normal',
     lineSpacing = 1.5,
     paragraphSpacing = 12,
     pageMargin = 40,
@@ -79,6 +80,7 @@ const createModernStyles = (customization = {}) => {
     fontSize: fontSize,
     lineHeight: lineSpacing,
     color: '#374151',
+    fontFamily: fontWeight === 'bold' ? `${fontFamily}-Bold` : fontFamily,
   },
   experienceItem: {
     marginBottom: 16,
@@ -122,6 +124,7 @@ const createModernStyles = (customization = {}) => {
   bulletText: {
     flex: 1,
     lineHeight: lineSpacing,
+    fontFamily: fontWeight === 'bold' ? `${fontFamily}-Bold` : fontFamily,
   },
   educationItem: {
     marginBottom: paragraphSpacing,
@@ -164,6 +167,173 @@ const createModernStyles = (customization = {}) => {
 export function ModernTemplate({ resumeData }) {
   const { personalInfo, summary, experience, education, skills, projects = [], certifications = [], languages = [], volunteer = [], awards = [], sectionVisibility = {}, customization = {} } = resumeData
   const modernStyles = createModernStyles(customization)
+
+  // Section components
+  const sections = {
+    summary: summary && sectionVisibility.summary !== false && (
+      <View style={modernStyles.section} wrap={false} key="summary">
+        <Text style={modernStyles.sectionTitle}>Professional Summary</Text>
+        <Text style={modernStyles.summaryText}>{summary}</Text>
+      </View>
+    ),
+    experience: experience.length > 0 && sectionVisibility.experience !== false && (
+      <View style={modernStyles.section} key="experience">
+        <Text style={modernStyles.sectionTitle}>Work Experience</Text>
+        {experience.map((exp, index) => (
+          <View key={exp.id} style={modernStyles.experienceItem} wrap={false}>
+            <View style={modernStyles.experienceHeader}>
+              <Text style={modernStyles.jobTitle}>{exp.title}</Text>
+              <Text style={modernStyles.dateText}>
+                {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+              </Text>
+            </View>
+            <Text style={modernStyles.company}>
+              {exp.company} | {exp.location}
+            </Text>
+            <View style={modernStyles.bulletList}>
+              {exp.description.map((desc, i) => desc && (
+                <View key={i} style={modernStyles.bulletItem}>
+                  <View style={modernStyles.bullet} />
+                  <Text style={modernStyles.bulletText}>{desc}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ))}
+      </View>
+    ),
+    education: education.length > 0 && sectionVisibility.education !== false && (
+      <View style={modernStyles.section} key="education">
+        <Text style={modernStyles.sectionTitle}>Education</Text>
+        {education.map((edu) => (
+          <View key={edu.id} style={modernStyles.educationItem} wrap={false}>
+            <View style={modernStyles.educationLeft}>
+              <Text style={modernStyles.degree}>{edu.degree}</Text>
+              <Text style={modernStyles.school}>{edu.school}</Text>
+            </View>
+            <View style={modernStyles.educationRight}>
+              <Text style={modernStyles.dateText}>{edu.graduationDate}</Text>
+              <Text style={modernStyles.school}>{edu.location}</Text>
+              {edu.gpa && <Text style={modernStyles.school}>GPA: {edu.gpa}</Text>}
+            </View>
+          </View>
+        ))}
+      </View>
+    ),
+    skills: skills.length > 0 && sectionVisibility.skills !== false && (
+      <View style={modernStyles.section} wrap={false} key="skills">
+        <Text style={modernStyles.sectionTitle}>Skills</Text>
+        <View style={modernStyles.skillsContainer}>
+          {skills.map((skill, i) => (
+            <Text key={i} style={modernStyles.skillTag}>{skill}</Text>
+          ))}
+        </View>
+      </View>
+    ),
+    projects: projects.length > 0 && sectionVisibility.projects !== false && (
+      <View style={modernStyles.section} key="projects">
+        <Text style={modernStyles.sectionTitle}>Projects</Text>
+        {projects.map((proj) => (
+          <View key={proj.id} style={modernStyles.experienceItem} wrap={false}>
+            <View style={modernStyles.experienceHeader}>
+              <Text style={modernStyles.jobTitle}>{proj.name}</Text>
+              {proj.date && <Text style={modernStyles.dateText}>{proj.date}</Text>}
+            </View>
+            {proj.description && (
+              <Text style={modernStyles.summaryText}>{proj.description}</Text>
+            )}
+            {proj.technologies.length > 0 && (
+              <View style={modernStyles.skillsContainer}>
+                {proj.technologies.map((tech, i) => (
+                  <Text key={i} style={modernStyles.skillTag}>{tech}</Text>
+                ))}
+              </View>
+            )}
+            {proj.link && (
+              <Text style={modernStyles.school}>Link: {proj.link}</Text>
+            )}
+          </View>
+        ))}
+      </View>
+    ),
+    certifications: certifications.length > 0 && sectionVisibility.certifications !== false && (
+      <View style={modernStyles.section} key="certifications">
+        <Text style={modernStyles.sectionTitle}>Certifications</Text>
+        {certifications.map((cert) => (
+          <View key={cert.id} style={modernStyles.educationItem} wrap={false}>
+            <View style={modernStyles.educationLeft}>
+              <Text style={modernStyles.degree}>{cert.name}</Text>
+              <Text style={modernStyles.school}>{cert.issuer}</Text>
+              {cert.credentialId && <Text style={modernStyles.school}>ID: {cert.credentialId}</Text>}
+            </View>
+            <View style={modernStyles.educationRight}>
+              <Text style={modernStyles.dateText}>{cert.date}</Text>
+              {cert.expiryDate && <Text style={modernStyles.school}>Expires: {cert.expiryDate}</Text>}
+            </View>
+          </View>
+        ))}
+      </View>
+    ),
+    languages: languages.length > 0 && sectionVisibility.languages !== false && (
+      <View style={modernStyles.section} wrap={false} key="languages">
+        <Text style={modernStyles.sectionTitle}>Languages</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+          {languages.map((lang) => (
+            <View key={lang.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={modernStyles.degree}>{lang.language}</Text>
+              <Text style={modernStyles.school}> - {lang.proficiency}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    ),
+    volunteer: volunteer.length > 0 && sectionVisibility.volunteer !== false && (
+      <View style={modernStyles.section} key="volunteer">
+        <Text style={modernStyles.sectionTitle}>Volunteer Experience</Text>
+        {volunteer.map((vol) => (
+          <View key={vol.id} style={modernStyles.experienceItem} wrap={false}>
+            <View style={modernStyles.experienceHeader}>
+              <Text style={modernStyles.jobTitle}>{vol.role}</Text>
+              <Text style={modernStyles.dateText}>
+                {vol.startDate} - {vol.current ? 'Present' : vol.endDate}
+              </Text>
+            </View>
+            <Text style={modernStyles.company}>
+              {vol.organization} | {vol.location}
+            </Text>
+            <View style={modernStyles.bulletList}>
+              {vol.description.map((desc, i) => desc && (
+                <View key={i} style={modernStyles.bulletItem}>
+                  <View style={modernStyles.bullet} />
+                  <Text style={modernStyles.bulletText}>{desc}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ))}
+      </View>
+    ),
+    awards: awards.length > 0 && sectionVisibility.awards !== false && (
+      <View style={modernStyles.section} key="awards">
+        <Text style={modernStyles.sectionTitle}>Awards & Honors</Text>
+        {awards.map((award) => (
+          <View key={award.id} style={modernStyles.experienceItem} wrap={false}>
+            <View style={modernStyles.experienceHeader}>
+              <Text style={modernStyles.jobTitle}>{award.title}</Text>
+              {award.date && <Text style={modernStyles.dateText}>{award.date}</Text>}
+            </View>
+            <Text style={modernStyles.company}>{award.issuer}</Text>
+            {award.description && (
+              <Text style={modernStyles.summaryText}>{award.description}</Text>
+            )}
+          </View>
+        ))}
+      </View>
+    )
+  }
+
+  // Get section order
+  const sectionOrder = customization.sectionOrder || ['summary', 'experience', 'projects', 'education', 'certifications', 'skills', 'languages', 'volunteer', 'awards']
 
   return (
     <Document>
@@ -214,185 +384,9 @@ export function ModernTemplate({ resumeData }) {
           )}
         </View>
 
-        {/* Content */}
+        {/* Content - Render sections in custom order */}
         <View style={modernStyles.content}>
-          {/* Summary */}
-          {summary && sectionVisibility.summary !== false && (
-            <View style={modernStyles.section} wrap={false}>
-              <Text style={modernStyles.sectionTitle}>Professional Summary</Text>
-              <Text style={modernStyles.summaryText}>{summary}</Text>
-            </View>
-          )}
-
-          {/* Experience */}
-          {experience.length > 0 && sectionVisibility.experience !== false && (
-            <View style={modernStyles.section}>
-              <Text style={modernStyles.sectionTitle}>Work Experience</Text>
-              {experience.map((exp, index) => (
-                <View key={exp.id} style={modernStyles.experienceItem} wrap={false}>
-                  <View style={modernStyles.experienceHeader}>
-                    <Text style={modernStyles.jobTitle}>{exp.title}</Text>
-                    <Text style={modernStyles.dateText}>
-                      {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
-                    </Text>
-                  </View>
-                  <Text style={modernStyles.company}>
-                    {exp.company} | {exp.location}
-                  </Text>
-                  <View style={modernStyles.bulletList}>
-                    {exp.description.map((desc, i) => desc && (
-                      <View key={i} style={modernStyles.bulletItem}>
-                        <View style={modernStyles.bullet} />
-                        <Text style={modernStyles.bulletText}>{desc}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Education */}
-          {education.length > 0 && sectionVisibility.education !== false && (
-            <View style={modernStyles.section}>
-              <Text style={modernStyles.sectionTitle}>Education</Text>
-              {education.map((edu) => (
-                <View key={edu.id} style={modernStyles.educationItem} wrap={false}>
-                  <View style={modernStyles.educationLeft}>
-                    <Text style={modernStyles.degree}>{edu.degree}</Text>
-                    <Text style={modernStyles.school}>{edu.school}</Text>
-                  </View>
-                  <View style={modernStyles.educationRight}>
-                    <Text style={modernStyles.dateText}>{edu.graduationDate}</Text>
-                    <Text style={modernStyles.school}>{edu.location}</Text>
-                    {edu.gpa && <Text style={modernStyles.school}>GPA: {edu.gpa}</Text>}
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Skills */}
-          {skills.length > 0 && sectionVisibility.skills !== false && (
-            <View style={modernStyles.section} wrap={false}>
-              <Text style={modernStyles.sectionTitle}>Skills</Text>
-              <View style={modernStyles.skillsContainer}>
-                {skills.map((skill, i) => (
-                  <Text key={i} style={modernStyles.skillTag}>{skill}</Text>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* Projects */}
-          {projects.length > 0 && sectionVisibility.projects !== false && (
-            <View style={modernStyles.section}>
-              <Text style={modernStyles.sectionTitle}>Projects</Text>
-              {projects.map((proj) => (
-                <View key={proj.id} style={modernStyles.experienceItem} wrap={false}>
-                  <View style={modernStyles.experienceHeader}>
-                    <Text style={modernStyles.jobTitle}>{proj.name}</Text>
-                    {proj.date && <Text style={modernStyles.dateText}>{proj.date}</Text>}
-                  </View>
-                  {proj.description && (
-                    <Text style={modernStyles.summaryText}>{proj.description}</Text>
-                  )}
-                  {proj.technologies.length > 0 && (
-                    <View style={modernStyles.skillsContainer}>
-                      {proj.technologies.map((tech, i) => (
-                        <Text key={i} style={modernStyles.skillTag}>{tech}</Text>
-                      ))}
-                    </View>
-                  )}
-                  {proj.link && (
-                    <Text style={modernStyles.school}>Link: {proj.link}</Text>
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Certifications */}
-          {certifications.length > 0 && sectionVisibility.certifications !== false && (
-            <View style={modernStyles.section}>
-              <Text style={modernStyles.sectionTitle}>Certifications</Text>
-              {certifications.map((cert) => (
-                <View key={cert.id} style={modernStyles.educationItem} wrap={false}>
-                  <View style={modernStyles.educationLeft}>
-                    <Text style={modernStyles.degree}>{cert.name}</Text>
-                    <Text style={modernStyles.school}>{cert.issuer}</Text>
-                    {cert.credentialId && <Text style={modernStyles.school}>ID: {cert.credentialId}</Text>}
-                  </View>
-                  <View style={modernStyles.educationRight}>
-                    <Text style={modernStyles.dateText}>{cert.date}</Text>
-                    {cert.expiryDate && <Text style={modernStyles.school}>Expires: {cert.expiryDate}</Text>}
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Languages */}
-          {languages.length > 0 && sectionVisibility.languages !== false && (
-            <View style={modernStyles.section} wrap={false}>
-              <Text style={modernStyles.sectionTitle}>Languages</Text>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-                {languages.map((lang) => (
-                  <View key={lang.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={modernStyles.degree}>{lang.language}</Text>
-                    <Text style={modernStyles.school}> - {lang.proficiency}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* Volunteer Experience */}
-          {volunteer.length > 0 && sectionVisibility.volunteer !== false && (
-            <View style={modernStyles.section}>
-              <Text style={modernStyles.sectionTitle}>Volunteer Experience</Text>
-              {volunteer.map((vol) => (
-                <View key={vol.id} style={modernStyles.experienceItem} wrap={false}>
-                  <View style={modernStyles.experienceHeader}>
-                    <Text style={modernStyles.jobTitle}>{vol.role}</Text>
-                    <Text style={modernStyles.dateText}>
-                      {vol.startDate} - {vol.current ? 'Present' : vol.endDate}
-                    </Text>
-                  </View>
-                  <Text style={modernStyles.company}>
-                    {vol.organization} | {vol.location}
-                  </Text>
-                  <View style={modernStyles.bulletList}>
-                    {vol.description.map((desc, i) => desc && (
-                      <View key={i} style={modernStyles.bulletItem}>
-                        <View style={modernStyles.bullet} />
-                        <Text style={modernStyles.bulletText}>{desc}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Awards & Honors */}
-          {awards.length > 0 && sectionVisibility.awards !== false && (
-            <View style={modernStyles.section}>
-              <Text style={modernStyles.sectionTitle}>Awards & Honors</Text>
-              {awards.map((award) => (
-                <View key={award.id} style={modernStyles.experienceItem} wrap={false}>
-                  <View style={modernStyles.experienceHeader}>
-                    <Text style={modernStyles.jobTitle}>{award.title}</Text>
-                    {award.date && <Text style={modernStyles.dateText}>{award.date}</Text>}
-                  </View>
-                  <Text style={modernStyles.company}>{award.issuer}</Text>
-                  {award.description && (
-                    <Text style={modernStyles.summaryText}>{award.description}</Text>
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
+          {sectionOrder.map(sectionKey => sections[sectionKey]).filter(Boolean)}
         </View>
       </Page>
     </Document>
@@ -400,14 +394,31 @@ export function ModernTemplate({ resumeData }) {
 }
 
 // Classic Template Styles
-const classicStyles = StyleSheet.create({
+const createClassicStyles = (customization = {}) => {
+  const {
+    accentColor = '#2563eb',
+    fontFamily = 'Times-Roman',
+    fontSize = 11,
+    fontWeight = 'normal',
+    lineSpacing = 1.5,
+    paragraphSpacing = 12,
+    pageMargin = 40,
+    showPageBorder = false,
+    borderWidth = 2,
+    borderColor = '#e5e7eb'
+  } = customization
+
+  return StyleSheet.create({
   page: {
     backgroundColor: '#ffffff',
-    fontFamily: 'Times-Roman',
-    padding: 40,
+    fontFamily: fontFamily === 'Helvetica' ? 'Times-Roman' : fontFamily,
+    padding: pageMargin,
+    ...(showPageBorder && {
+      border: `${borderWidth}px solid ${borderColor}`
+    })
   },
   header: {
-    borderBottom: '4px solid #1f2937',
+    borderBottom: `4px solid ${accentColor}`,
     paddingBottom: 20,
     marginBottom: 24,
     alignItems: 'center',
@@ -416,12 +427,12 @@ const classicStyles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    border: '4px solid #1f2937',
+    border: `4px solid ${accentColor}`,
     marginBottom: 12,
     objectFit: 'cover',
   },
   name: {
-    fontSize: 36,
+    fontSize: fontSize * 2.5,
     fontWeight: 'bold',
     color: '#111827',
     textAlign: 'center',
@@ -443,22 +454,23 @@ const classicStyles = StyleSheet.create({
     marginHorizontal: 4,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: paragraphSpacing + 8,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: fontSize * 1.3,
     fontWeight: 'bold',
-    color: '#111827',
+    color: accentColor,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginBottom: 12,
+    marginBottom: paragraphSpacing,
     fontFamily: 'Times-Bold',
   },
   summaryText: {
-    fontSize: 11,
-    lineHeight: 1.6,
+    fontSize: fontSize,
+    lineHeight: lineSpacing,
     color: '#374151',
     textAlign: 'justify',
+    fontFamily: fontWeight === 'bold' ? 'Times-Bold' : 'Times-Roman',
   },
   experienceItem: {
     marginBottom: 14,
@@ -469,7 +481,7 @@ const classicStyles = StyleSheet.create({
     marginBottom: 2,
   },
   jobTitle: {
-    fontSize: 13,
+    fontSize: fontSize * 1.2,
     fontWeight: 'bold',
     color: '#111827',
     fontFamily: 'Times-Bold',
@@ -480,20 +492,20 @@ const classicStyles = StyleSheet.create({
     marginBottom: 6,
   },
   company: {
-    fontSize: 11,
+    fontSize: fontSize,
     color: '#374151',
     fontStyle: 'italic',
     fontFamily: 'Times-Italic',
   },
   dateLocation: {
-    fontSize: 10,
+    fontSize: fontSize * 0.9,
     color: '#6b7280',
   },
   bulletList: {
     marginLeft: 20,
   },
   bulletItem: {
-    fontSize: 10,
+    fontSize: fontSize,
     color: '#374151',
     marginBottom: 3,
     flexDirection: 'row',
@@ -502,40 +514,44 @@ const classicStyles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#374151',
+    backgroundColor: accentColor,
     marginRight: 8,
     marginTop: 5,
   },
   bulletText: {
     flex: 1,
-    lineHeight: 1.5,
+    lineHeight: lineSpacing,
+    fontFamily: fontWeight === 'bold' ? 'Times-Bold' : 'Times-Roman',
   },
   educationItem: {
-    marginBottom: 12,
+    marginBottom: paragraphSpacing,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   degree: {
-    fontSize: 12,
+    fontSize: fontSize * 1.1,
     fontWeight: 'bold',
     color: '#111827',
     fontFamily: 'Times-Bold',
   },
   school: {
-    fontSize: 11,
+    fontSize: fontSize,
     color: '#374151',
     fontFamily: 'Times-Italic',
   },
   skills: {
-    fontSize: 11,
+    fontSize: fontSize,
     color: '#374151',
-    lineHeight: 1.6,
+    lineHeight: lineSpacing,
+    fontFamily: fontWeight === 'bold' ? 'Times-Bold' : 'Times-Roman',
   },
 })
+}
 
 // Classic Template Component
 export function ClassicTemplate({ resumeData }) {
-  const { personalInfo, summary, experience, education, skills, projects = [], certifications = [], languages = [], volunteer = [], awards = [], sectionVisibility = {} } = resumeData
+  const { personalInfo, summary, experience, education, skills, projects = [], certifications = [], languages = [], volunteer = [], awards = [], sectionVisibility = {}, customization = {} } = resumeData
+  const classicStyles = createClassicStyles(customization)
 
   return (
     <Document>

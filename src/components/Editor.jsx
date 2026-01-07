@@ -1,9 +1,53 @@
 import { useState } from 'react'
-import { Plus, Trash2, Upload, X, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react'
+import { Plus, Trash2, Upload, X, ChevronDown, ChevronUp, Eye, EyeOff, GripVertical } from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+// Sortable Item Component for Section Reordering
+function SortableItem({ id, children, label }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg p-3">
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-shrink-0">
+        <GripVertical className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+      </div>
+      <span className="text-sm font-medium text-gray-700 flex-1">{label}</span>
+    </div>
+  )
+}
 
 export default function Editor({ resumeData, setResumeData }) {
   const [collapsedSections, setCollapsedSections] = useState({
     customization: false,
+    sectionOrder: false,
     personalInfo: false,
     summary: false,
     experience: false,
@@ -15,6 +59,13 @@ export default function Editor({ resumeData, setResumeData }) {
     volunteer: false,
     awards: false
   })
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const toggleSection = (section) => {
     setCollapsedSections(prev => ({
@@ -41,6 +92,26 @@ export default function Editor({ resumeData, setResumeData }) {
         [field]: value
       }
     })
+  }
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const currentOrder = resumeData.customization?.sectionOrder || ['summary', 'experience', 'projects', 'education', 'certifications', 'skills', 'languages', 'volunteer', 'awards']
+      const oldIndex = currentOrder.indexOf(active.id)
+      const newIndex = currentOrder.indexOf(over.id)
+
+      const newOrder = arrayMove(currentOrder, oldIndex, newIndex)
+
+      setResumeData({
+        ...resumeData,
+        customization: {
+          ...resumeData.customization,
+          sectionOrder: newOrder
+        }
+      })
+    }
   }
 
   const updatePersonalInfo = (field, value) => {
@@ -443,24 +514,36 @@ export default function Editor({ resumeData, setResumeData }) {
             </select>
           </div>
 
-          {/* Font Size */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Font Size: {resumeData.customization?.fontSize || 11}pt
-            </label>
-            <input
-              type="range"
-              min="9"
-              max="14"
-              step="0.5"
-              value={resumeData.customization?.fontSize || 11}
-              onChange={(e) => updateCustomization('fontSize', parseFloat(e.target.value))}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>9pt (Small)</span>
-              <span>11pt (Default)</span>
-              <span>14pt (Large)</span>
+          {/* Font Size & Weight */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Font Size: {resumeData.customization?.fontSize || 11}pt
+              </label>
+              <input
+                type="range"
+                min="9"
+                max="14"
+                step="0.5"
+                value={resumeData.customization?.fontSize || 11}
+                onChange={(e) => updateCustomization('fontSize', parseFloat(e.target.value))}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>9pt</span>
+                <span>14pt</span>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Body Text Weight</label>
+              <select
+                value={resumeData.customization?.fontWeight || "normal"}
+                onChange={(e) => updateCustomization('fontWeight', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="normal">Normal</option>
+                <option value="bold">Bold</option>
+              </select>
             </div>
           </div>
 
@@ -568,6 +651,45 @@ export default function Editor({ resumeData, setResumeData }) {
             )}
           </div>
         </div>
+        )}
+      </section>
+
+      {/* Section Order Control */}
+      <section className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
+        <SectionHeader title="Section Order (Drag to Reorder)" section="sectionOrder" />
+        {!collapsedSections.sectionOrder && (
+        <>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={resumeData.customization?.sectionOrder || ['summary', 'experience', 'projects', 'education', 'certifications', 'skills', 'languages', 'volunteer', 'awards']}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {(resumeData.customization?.sectionOrder || ['summary', 'experience', 'projects', 'education', 'certifications', 'skills', 'languages', 'volunteer', 'awards']).map((section) => {
+                const sectionNames = {
+                  summary: 'Professional Summary',
+                  experience: 'Work Experience',
+                  projects: 'Projects',
+                  education: 'Education',
+                  certifications: 'Certifications',
+                  skills: 'Skills',
+                  languages: 'Languages',
+                  volunteer: 'Volunteer Experience',
+                  awards: 'Awards & Honors'
+                }
+                return (
+                  <SortableItem key={section} id={section} label={sectionNames[section]} />
+                )
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
+        <p className="mt-3 text-xs text-gray-600">💡 Drag the grip handles to reorder sections</p>
+        </>
         )}
       </section>
 
