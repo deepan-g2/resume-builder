@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Download, Save, FileText, Mail, Upload, Copy } from 'lucide-react'
+import { Download, Save, FileText, Mail, Upload, Copy, Target } from 'lucide-react'
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
 import Editor from './components/Editor'
 import CoverLetterEditor from './components/CoverLetterEditor'
@@ -9,6 +9,7 @@ import { ModernCoverLetterTemplate, ClassicCoverLetterTemplate, MinimalCoverLett
 import { initialResumeData } from './data/resumeData'
 import { initialCoverLetterData } from './data/coverLetterData'
 import { duplicateResume, saveResume } from './utils/resumeManager'
+import { analyzeResume, getScoreColor, getScoreBgColor } from './utils/atsAnalyzer'
 
 function App() {
   const [resumeData, setResumeData] = useState(() => {
@@ -70,6 +71,7 @@ function App() {
   const [showEditor, setShowEditor] = useState(true)
   const [activeTab, setActiveTab] = useState('resume') // 'resume' or 'coverLetter'
   const [showImportExport, setShowImportExport] = useState(false)
+  const [atsScore, setAtsScore] = useState(null)
 
   const [coverLetterData, setCoverLetterData] = useState(() => {
     const saved = localStorage.getItem('coverLetterData')
@@ -78,6 +80,12 @@ function App() {
     }
     return initialCoverLetterData
   })
+
+  // Calculate ATS score
+  useEffect(() => {
+    const analysis = analyzeResume(resumeData, 'technology')
+    setAtsScore(analysis.totalScore)
+  }, [resumeData])
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -175,6 +183,23 @@ function App() {
               <div className="flex items-center space-x-3">
                 <FileText className="w-8 h-8 text-blue-600" />
                 <h1 className="text-2xl font-bold text-gray-900">Resume Builder</h1>
+
+                {/* ATS Score Badge - Only show on Resume tab */}
+                {activeTab === 'resume' && atsScore !== null && (
+                  <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border-2 ${
+                    atsScore >= 80 ? 'bg-green-50 border-green-300' :
+                    atsScore >= 60 ? 'bg-yellow-50 border-yellow-300' :
+                    'bg-red-50 border-red-300'
+                  }`}>
+                    <Target className={`w-4 h-4 ${getScoreColor(atsScore)}`} />
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-500 font-medium">ATS Score</span>
+                      <span className={`text-lg font-bold leading-none ${getScoreColor(atsScore)}`}>
+                        {atsScore}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Tab Navigation */}

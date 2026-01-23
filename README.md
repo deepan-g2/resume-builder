@@ -16,7 +16,14 @@ A modern, visual resume editor with live preview and multiple professional templ
 - ✅ **PDF Export** - Download your resume as PDF
 - ✅ **Auto-Save** - Your work is automatically saved to browser storage
 
-### Cover Letter Generator ✨ NEW
+### ATS Optimization ✨ NEW
+- ✅ **Real-Time ATS Scoring** - Get instant compatibility scores (0-100)
+- ✅ **Industry-Specific Keywords** - Keyword matching for 8+ industries
+- ✅ **Actionable Recommendations** - Get specific suggestions to improve your score
+- ✅ **Keyword Analysis** - See which keywords you're using and which are missing
+- ✅ **Content Quality Checks** - Validation for length, achievements, action verbs
+
+### Cover Letter Generator
 - ✅ **Matching Templates** - Cover letters styled to match your resume
 - ✅ **Job Integration** - Fields for position, company, and hiring manager details
 - ✅ **Smart Placeholders** - Auto-replace [Position] and [Company] throughout the letter
@@ -57,17 +64,43 @@ The production build will be in the `dist` folder.
 
 ## 📖 How to Use
 
+### ATS Optimization (NEW!)
+
+The resume builder now includes an **ATS Compatibility Score** that analyzes your resume in real-time:
+
+1. **View Your Score** - See your ATS score (0-100) in the header and detailed breakdown in the editor
+2. **Select Your Industry** - Choose from 8 industries (Technology, Marketing, Finance, Healthcare, Sales, Design, Education, HR) for industry-specific keyword analysis
+3. **Get Recommendations** - Receive actionable suggestions to improve your resume:
+   - Critical issues (missing contact info, short descriptions)
+   - Keyword improvements (missing technical and soft skills)
+   - Content quality tips (action verbs, quantifiable achievements)
+4. **Track Keywords** - See which industry-relevant keywords you've included
+5. **Suggested Keywords** - Get recommendations for keywords to add based on your target industry
+
+The ATS score is calculated based on:
+- **Formatting (25%)** - Contact information completeness
+- **Keywords (35%)** - Industry-specific technical and soft skills
+- **Content Quality (25%)** - Summary length, detailed descriptions, quantifiable achievements
+- **Completeness (15%)** - Overall resume completeness
+
 ### Editing Your Resume
 
 1. **Select Resume Tab** - Click the "Resume" tab in the header
 2. **Personal Information** - Fill in your contact details
-3. **Professional Summary** - Write a brief summary about yourself
+3. **Professional Summary** - Write a brief summary about yourself (minimum 20 words recommended for ATS)
 4. **Work Experience** - Add your work history with responsibilities
    - Click "+ Add Experience" to add more jobs
    - Use the trash icon to remove entries
+   - Add 2-4 bullet points per role
+   - Start with action verbs (led, managed, developed, etc.)
+   - Include quantifiable achievements (increased sales by 30%, etc.)
 5. **Education** - Add your educational background
-6. **Skills** - List your skills (comma-separated)
-7. **Additional Sections** - Add Projects, Certifications, Languages, Volunteer work, and Awards
+6. **Skills** - List your skills (comma-separated) - include both technical and soft skills
+7. **Projects** - Showcase your key projects with technologies used
+8. **Certifications** - Add professional certifications
+9. **Languages** - List languages and proficiency levels
+10. **Volunteer Experience** - Include volunteer work
+11. **Awards & Honors** - Add recognition and achievements
 
 ### Creating Your Cover Letter
 
@@ -180,6 +213,7 @@ resume-builder/
 ├── src/
 │   ├── components/
 │   │   ├── Editor.jsx                  # Resume editor form
+│   │   ├── ATSScore.jsx                # ATS compatibility score component
 │   │   ├── CoverLetterEditor.jsx       # Cover letter editor form
 │   │   ├── PDFTemplates.jsx            # Resume PDF templates (6 styles)
 │   │   ├── CoverLetterTemplates.jsx    # Cover letter PDF templates (6 styles)
@@ -192,6 +226,7 @@ resume-builder/
 │   │   └── coverLetterData.js          # Initial cover letter data structure
 │   ├── utils/
 │   │   ├── pdfExport.js                # PDF export utilities
+│   │   ├── atsAnalyzer.js              # ATS analysis and scoring engine
 │   │   ├── documentParser.js           # PDF/DOCX parsing
 │   │   ├── linkedinImport.js           # LinkedIn import
 │   │   ├── exportUtils.js              # JSON/TXT/HTML export
@@ -324,10 +359,38 @@ Standalone web page with:
 - Print-friendly layout
 - Can be opened in any browser
 
+## 🎯 ATS Optimization Details
+
+### Industry-Specific Keywords
+
+The ATS analyzer includes comprehensive keyword databases for 8 industries:
+
+1. **Technology** - Programming languages, frameworks, cloud platforms, development tools
+2. **Marketing** - SEO, SEM, content marketing, analytics tools, social media
+3. **Finance** - Financial modeling, accounting software, regulations, analysis
+4. **Healthcare** - Patient care, EHR systems, medical terminology, certifications
+5. **Sales** - CRM systems, lead generation, negotiation, sales methodologies
+6. **Design** - Design tools, UI/UX, Adobe Creative Suite, prototyping
+7. **Education** - Curriculum development, educational technology, classroom management
+8. **Human Resources** - Recruitment, HRIS, employee relations, compliance
+
+### ATS Best Practices
+
+The analyzer checks for:
+- ✅ Complete contact information (email, phone, location)
+- ✅ Professional summary with adequate length (20+ words)
+- ✅ Detailed experience descriptions (2-4 bullets per role)
+- ✅ Quantifiable achievements with numbers and metrics
+- ✅ Action verbs starting bullet points
+- ✅ Industry-relevant technical keywords
+- ✅ Soft skills appropriate for your field
+- ✅ Overall resume completeness
+
 ## 🎯 Recent Enhancements
 
 - ✅ 6 professional templates (Modern, Classic, Minimal, Executive, Creative, Technical)
 - ✅ 9 resume sections with visibility controls
+- ✅ **ATS optimization scoring with real-time analysis** (NEW!)
 - ✅ Cover letter generator with matching templates
 - ✅ AI helper interface for job description integration
 - ✅ Smart placeholders for personalization
@@ -340,7 +403,8 @@ Standalone web page with:
 
 - [ ] Active AI integration for cover letter personalization (OpenAI API)
 - [ ] Pre-written content suggestions library
-- [ ] ATS optimization scoring
+- [ ] Job description keyword matcher
+- [ ] A/B testing for different resume versions
 - [ ] Multiple cover letter versions management
 - [ ] Cloud save with user accounts
 - [ ] Share resume/cover letter link feature
