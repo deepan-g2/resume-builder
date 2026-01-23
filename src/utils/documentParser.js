@@ -1,11 +1,10 @@
 import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure PDF.js to use the worker from node_modules
-// This works better with Vite's bundling
+// Configure PDF.js to use the worker - use .mjs extension for newer versions
 if (typeof window !== 'undefined') {
-  // Try multiple CDN sources as fallback
-  const workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+  // Use the correct file extension (.mjs for pdfjs-dist 3.0+)
+  const workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
   pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
   console.log('PDF.js worker configured:', workerSrc);
