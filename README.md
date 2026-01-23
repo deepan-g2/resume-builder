@@ -9,7 +9,9 @@ A modern, visual resume editor with live preview and multiple professional templ
 - ✅ **Live Preview** - See changes in real-time
 - ✅ **6 Professional Templates** - Modern, Classic, Minimal, Executive, Creative, and Technical designs
 - ✅ **9 Resume Sections** - Summary, Experience, Education, Skills, Projects, Certifications, Languages, Volunteer, Awards
-- ✅ **Extensive Customization** - Colors, fonts, spacing, margins, section ordering
+- ✅ **Import/Export** - Import from LinkedIn, PDF, DOCX, or JSON; Export as JSON, TXT, HTML, or PDF
+- ✅ **Duplicate Resume** - Create multiple versions of your resume
+- ✅ **Extensive Customization** - Colors, fonts, spacing, margins, borders, section ordering
 - ✅ **Section Visibility** - Show/hide sections as needed
 - ✅ **PDF Export** - Download your resume as PDF
 - ✅ **Auto-Save** - Your work is automatically saved to browser storage
@@ -92,12 +94,30 @@ Both resume and cover letter use the same template selection, ensuring a cohesiv
 - **Fonts** - Choose between Helvetica, Times New Roman, or Courier
 - **Font Size** - Adjust from 9pt to 14pt
 - **Line Spacing** - Control readability with 1.0 to 2.0 spacing
+- **Borders** - Enable/disable page borders with custom width and color
 - **Section Order** - Drag to reorder resume sections
 - **Visibility** - Show/hide specific sections
 
-### Exporting to PDF
+### Import & Export
 
+#### Exporting to PDF
 Click the "Download PDF" button in the header to export the current document (resume or cover letter) as PDF.
+
+#### Import/Export Modal
+Click the "Import/Export" button (in Resume tab) to:
+
+**Import Options:**
+- **From File** - Upload PDF, DOCX, or JSON files to extract resume data
+- **From LinkedIn** - Paste your LinkedIn profile JSON data (instructions provided in modal)
+
+**Export Options:**
+- **JSON** - Export complete resume data (best for backup/re-import)
+- **Text** - Export as plain text file
+- **HTML** - Export as standalone HTML page
+
+### Duplicate Resume
+
+Click the "Duplicate" button to create a copy of your current resume. Perfect for creating multiple versions tailored to different job applications.
 
 ### Saving Your Work
 
@@ -146,9 +166,12 @@ Both resume and cover letter are automatically saved to your browser's localStor
 - **React 18** - UI framework
 - **Vite** - Build tool and dev server
 - **Tailwind CSS** - Styling
-- **jsPDF** - PDF generation
-- **html2canvas** - Screenshot capture
+- **@react-pdf/renderer** - PDF generation and rendering
 - **Lucide React** - Icons
+- **mammoth** - DOCX parsing
+- **pdf-parse & pdfjs-dist** - PDF text extraction
+- **file-saver** - File download utilities
+- **@dnd-kit** - Drag and drop for section reordering
 
 ## 📁 Project Structure
 
@@ -159,10 +182,20 @@ resume-builder/
 │   │   ├── Editor.jsx                  # Resume editor form
 │   │   ├── CoverLetterEditor.jsx       # Cover letter editor form
 │   │   ├── PDFTemplates.jsx            # Resume PDF templates (6 styles)
-│   │   └── CoverLetterTemplates.jsx    # Cover letter PDF templates (6 styles)
+│   │   ├── CoverLetterTemplates.jsx    # Cover letter PDF templates (6 styles)
+│   │   ├── PagedPreview.jsx            # Live preview wrapper
+│   │   ├── PagedResume.jsx             # Multi-page support
+│   │   ├── Preview.jsx                 # HTML preview
+│   │   └── ImportExportModal.jsx       # Import/export dialog
 │   ├── data/
 │   │   ├── resumeData.js               # Initial resume data structure
 │   │   └── coverLetterData.js          # Initial cover letter data structure
+│   ├── utils/
+│   │   ├── pdfExport.js                # PDF export utilities
+│   │   ├── documentParser.js           # PDF/DOCX parsing
+│   │   ├── linkedinImport.js           # LinkedIn import
+│   │   ├── exportUtils.js              # JSON/TXT/HTML export
+│   │   └── resumeManager.js            # Resume management
 │   ├── App.jsx                         # Main app with tab navigation
 │   ├── main.jsx                        # Entry point
 │   └── index.css                       # Global styles
@@ -234,6 +267,63 @@ Feel free to fork this project and customize it for your needs!
 
 MIT License - feel free to use this for personal or commercial projects.
 
+## 📋 Import/Export Details
+
+### Importing Resumes
+
+#### From PDF/DOCX
+The parser automatically extracts:
+- Personal information (name, email, phone, location, links)
+- Work experience with dates and descriptions
+- Education with degrees and schools
+- Skills
+- Projects
+- Certifications
+
+Note: PDF/DOCX parsing works best with standard resume formats. Complex layouts may require manual adjustments.
+
+#### From LinkedIn
+1. Go to LinkedIn Settings & Privacy
+2. Navigate to 'Data Privacy' → 'Get a copy of your data'
+3. Request archive and download
+4. Extract and paste the Profile.json content into the import dialog
+
+The LinkedIn importer supports:
+- Profile information
+- Work positions
+- Education
+- Skills
+- Certifications
+- Languages
+- Volunteer work
+- Awards and honors
+
+#### From JSON
+Import previously exported resume data to restore your work or migrate between devices.
+
+### Exporting Resumes
+
+#### JSON Export
+Complete backup including:
+- All resume data
+- Customization settings
+- Section visibility preferences
+- Section ordering
+
+#### Text Export
+Plain text format with:
+- Clean, readable formatting
+- Section headers
+- Bullet points
+- Preserves section order
+
+#### HTML Export
+Standalone web page with:
+- Styled resume matching your color scheme
+- Responsive design
+- Print-friendly layout
+- Can be opened in any browser
+
 ## 🎯 Recent Enhancements
 
 - ✅ 6 professional templates (Modern, Classic, Minimal, Executive, Creative, Technical)
@@ -242,18 +332,21 @@ MIT License - feel free to use this for personal or commercial projects.
 - ✅ AI helper interface for job description integration
 - ✅ Smart placeholders for personalization
 - ✅ Import personal info from resume to cover letter
+- ✅ Import/export capabilities (LinkedIn, PDF, DOCX, JSON, TXT, HTML)
+- ✅ Duplicate resume functionality
 - ✅ Extensive customization (colors, fonts, spacing, section ordering)
 
 ## 🚀 Future Enhancements
 
 - [ ] Active AI integration for cover letter personalization (OpenAI API)
-- [ ] Import from existing resume (PDF/DOCX)
 - [ ] Pre-written content suggestions library
 - [ ] ATS optimization scoring
 - [ ] Multiple cover letter versions management
 - [ ] Cloud save with user accounts
 - [ ] Share resume/cover letter link feature
 - [ ] Export to Word format
+- [ ] Multi-resume management UI
+- [ ] Import from more platforms (Indeed, Monster, etc.)
 - [ ] Collaboration features
 
 ---

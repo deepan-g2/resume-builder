@@ -1,0 +1,344 @@
+import { useState } from 'react';
+import { X, Upload, Download, FileJson, FileText, Code, Copy, FileUp, Linkedin } from 'lucide-react';
+import { parseDOCX, parsePDF } from '../utils/documentParser';
+import { parseLinkedInData, getLinkedInImportInstructions } from '../utils/linkedinImport';
+import { exportAsJSON, exportAsText, exportAsHTML } from '../utils/exportUtils';
+import { importFromJSON, duplicateResume } from '../utils/resumeManager';
+
+const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDuplicate }) => {
+  const [activeTab, setActiveTab] = useState('import');
+  const [importMethod, setImportMethod] = useState('file');
+  const [textInput, setTextInput] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  if (!isOpen) return null;
+
+  const showMessage = (type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+  };
+
+  const handleFileImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      let parsedData = null;
+
+      if (file.type === 'application/pdf') {
+        parsedData = await parsePDF(file);
+        showMessage('success', 'PDF imported successfully!');
+      } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        parsedData = await parseDOCX(file);
+        showMessage('success', 'DOCX imported successfully!');
+      } else if (file.type === 'application/json') {
+        const text = await file.text();
+        parsedData = importFromJSON(text);
+        showMessage('success', 'JSON imported successfully!');
+      } else {
+        showMessage('error', 'Unsupported file type. Please use PDF, DOCX, or JSON.');
+        setIsProcessing(false);
+        return;
+      }
+
+      if (parsedData) {
+        // Merge with current customization settings
+        const mergedData = {
+          ...parsedData,
+          customization: resumeData.customization,
+          sectionVisibility: resumeData.sectionVisibility
+        };
+        setResumeData(mergedData);
+        setTimeout(() => onClose(), 1500);
+      }
+    } catch (error) {
+      showMessage('error', error.message || 'Failed to import file');
+    } finally {
+      setIsProcessing(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleLinkedInImport = () => {
+    if (!textInput.trim()) {
+      showMessage('error', 'Please paste LinkedIn JSON data');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const parsedData = parseLinkedInData(textInput);
+      if (parsedData) {
+        // Merge with current customization settings
+        const mergedData = {
+          ...parsedData,
+          customization: resumeData.customization,
+          sectionVisibility: resumeData.sectionVisibility
+        };
+        setResumeData(mergedData);
+        showMessage('success', 'LinkedIn data imported successfully!');
+        setTextInput('');
+        setTimeout(() => onClose(), 1500);
+      } else {
+        showMessage('error', 'Failed to parse LinkedIn data. Please ensure you pasted valid JSON.');
+      }
+    } catch (error) {
+      showMessage('error', error.message || 'Failed to import LinkedIn data');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleExport = (format) => {
+    try {
+      const fileName = resumeData.personalInfo?.fullName?.replace(/\s+/g, '_') || 'resume';
+
+      switch (format) {
+        case 'json':
+          exportAsJSON(resumeData, fileName);
+          showMessage('success', 'Resume exported as JSON!');
+          break;
+        case 'text':
+          exportAsText(resumeData, fileName);
+          showMessage('success', 'Resume exported as text!');
+          break;
+        case 'html':
+          exportAsHTML(resumeData, fileName);
+          showMessage('success', 'Resume exported as HTML!');
+          break;
+      }
+    } catch (error) {
+      showMessage('error', 'Failed to export resume');
+    }
+  };
+
+  const handleDuplicate = () => {
+    try {
+      onDuplicate();
+      showMessage('success', 'Resume duplicated successfully!');
+      setTimeout(() => onClose(), 1500);
+    } catch (error) {
+      showMessage('error', 'Failed to duplicate resume');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b">
+          <h2 className="text-2xl font-bold text-gray-900">Import & Export</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b">
+          <button
+            onClick={() => setActiveTab('import')}
+            className={`flex-1 py-3 px-6 font-medium transition-colors ${
+              activeTab === 'import'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Upload className="w-4 h-4 inline mr-2" />
+            Import
+          </button>
+          <button
+            onClick={() => setActiveTab('export')}
+            className={`flex-1 py-3 px-6 font-medium transition-colors ${
+              activeTab === 'export'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Download className="w-4 h-4 inline mr-2" />
+            Export
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+          {/* Message */}
+          {message.text && (
+            <div
+              className={`mb-4 p-3 rounded-lg ${
+                message.type === 'success'
+                  ? 'bg-green-50 text-green-800 border border-green-200'
+                  : 'bg-red-50 text-red-800 border border-red-200'
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          {activeTab === 'import' ? (
+            <div className="space-y-6">
+              {/* Import Methods */}
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setImportMethod('file')}
+                  className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                    importMethod === 'file'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <FileUp className="w-4 h-4 inline mr-2" />
+                  File Upload
+                </button>
+                <button
+                  onClick={() => setImportMethod('linkedin')}
+                  className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                    importMethod === 'linkedin'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Linkedin className="w-4 h-4 inline mr-2" />
+                  LinkedIn
+                </button>
+              </div>
+
+              {importMethod === 'file' ? (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Import from File</h3>
+                  <p className="text-gray-600 mb-4">
+                    Upload your resume in PDF, DOCX, or JSON format. We'll automatically extract the information.
+                  </p>
+
+                  <label className="block">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer">
+                      <FileUp className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p className="text-gray-700 font-medium mb-1">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-sm text-gray-500">PDF, DOCX, or JSON (max 10MB)</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept=".pdf,.docx,.json"
+                      onChange={handleFileImport}
+                      disabled={isProcessing}
+                      className="hidden"
+                    />
+                  </label>
+
+                  {isProcessing && (
+                    <div className="mt-4 text-center">
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <p className="mt-2 text-gray-600">Processing file...</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Import from LinkedIn</h3>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-blue-900 whitespace-pre-line">
+                      {getLinkedInImportInstructions()}
+                    </p>
+                  </div>
+
+                  <textarea
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    placeholder="Paste your LinkedIn profile JSON data here..."
+                    className="w-full h-48 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                    disabled={isProcessing}
+                  />
+
+                  <button
+                    onClick={handleLinkedInImport}
+                    disabled={isProcessing || !textInput.trim()}
+                    className="mt-4 w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isProcessing ? 'Importing...' : 'Import LinkedIn Data'}
+                  </button>
+                </div>
+              )}
+
+              {/* Duplicate Button */}
+              <div className="pt-6 border-t">
+                <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
+                <button
+                  onClick={handleDuplicate}
+                  className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                >
+                  <Copy className="w-4 h-4" />
+                  <span>Duplicate Current Resume</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mb-4">Export Resume</h3>
+              <p className="text-gray-600 mb-6">
+                Choose a format to export your resume. All formats preserve your data.
+              </p>
+
+              {/* Export Options */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleExport('json')}
+                  className="w-full flex items-center space-x-3 p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <FileJson className="w-8 h-8 text-blue-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-gray-900">Export as JSON</p>
+                    <p className="text-sm text-gray-600">
+                      Complete data export - perfect for backup or re-importing
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleExport('text')}
+                  className="w-full flex items-center space-x-3 p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <FileText className="w-8 h-8 text-green-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-gray-900">Export as Text</p>
+                    <p className="text-sm text-gray-600">
+                      Plain text format - easy to copy and paste anywhere
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleExport('html')}
+                  className="w-full flex items-center space-x-3 p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <Code className="w-8 h-8 text-purple-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-gray-900">Export as HTML</p>
+                    <p className="text-sm text-gray-600">
+                      Web page format - view in browser or share online
+                    </p>
+                  </div>
+                </button>
+              </div>
+
+              <div className="pt-6 border-t">
+                <p className="text-sm text-gray-500">
+                  Note: For PDF export, use the "Download PDF" button in the main toolbar.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ImportExportModal;

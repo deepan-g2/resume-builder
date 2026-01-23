@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
-import { Download, Save, FileText, Mail } from 'lucide-react'
+import { Download, Save, FileText, Mail, Upload, Copy } from 'lucide-react'
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
 import Editor from './components/Editor'
 import CoverLetterEditor from './components/CoverLetterEditor'
+import ImportExportModal from './components/ImportExportModal'
 import { ModernTemplate, ClassicTemplate, MinimalTemplate, ExecutiveTemplate, CreativeTemplate, TechnicalTemplate } from './components/PDFTemplates'
 import { ModernCoverLetterTemplate, ClassicCoverLetterTemplate, MinimalCoverLetterTemplate, ExecutiveCoverLetterTemplate, CreativeCoverLetterTemplate, TechnicalCoverLetterTemplate } from './components/CoverLetterTemplates'
 import { initialResumeData } from './data/resumeData'
 import { initialCoverLetterData } from './data/coverLetterData'
+import { duplicateResume, saveResume } from './utils/resumeManager'
 
 function App() {
   const [resumeData, setResumeData] = useState(() => {
@@ -67,6 +69,7 @@ function App() {
   const [template, setTemplate] = useState('modern')
   const [showEditor, setShowEditor] = useState(true)
   const [activeTab, setActiveTab] = useState('resume') // 'resume' or 'coverLetter'
+  const [showImportExport, setShowImportExport] = useState(false)
 
   const [coverLetterData, setCoverLetterData] = useState(() => {
     const saved = localStorage.getItem('coverLetterData')
@@ -148,6 +151,17 @@ function App() {
     if (confirm('Reset to default resume? This will clear all your data.')) {
       setResumeData(initialResumeData)
       localStorage.removeItem('resumeData')
+    }
+  }
+
+  const handleDuplicate = () => {
+    try {
+      const saved = saveResume(resumeData);
+      const duplicated = duplicateResume(saved.id);
+      setResumeData(duplicated.data);
+      alert('Resume duplicated successfully!');
+    } catch (error) {
+      alert('Failed to duplicate resume. Please try again.');
     }
   }
 
@@ -248,6 +262,28 @@ function App() {
                 </div>
               </div>
 
+              {/* Import/Export Button - Only show in Resume tab */}
+              {activeTab === 'resume' && (
+                <>
+                  <button
+                    onClick={() => setShowImportExport(true)}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Import/Export</span>
+                  </button>
+
+                  {/* Duplicate Button - Only show in Resume tab */}
+                  <button
+                    onClick={handleDuplicate}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    <Copy className="w-4 h-4" />
+                    <span>Duplicate</span>
+                  </button>
+                </>
+              )}
+
               {/* Toggle Editor */}
               <button
                 onClick={() => setShowEditor(!showEditor)}
@@ -322,6 +358,17 @@ function App() {
           </div>
         </div>
       </main>
+
+      {/* Import/Export Modal - Only for Resume */}
+      {activeTab === 'resume' && (
+        <ImportExportModal
+          isOpen={showImportExport}
+          onClose={() => setShowImportExport(false)}
+          resumeData={resumeData}
+          setResumeData={setResumeData}
+          onDuplicate={handleDuplicate}
+        />
+      )}
     </div>
   )
 }
