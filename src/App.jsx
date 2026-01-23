@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Download, Save, FileText } from 'lucide-react'
+import { Download, Save, FileText, Mail } from 'lucide-react'
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
 import Editor from './components/Editor'
+import CoverLetterEditor from './components/CoverLetterEditor'
 import { ModernTemplate, ClassicTemplate, MinimalTemplate, ExecutiveTemplate, CreativeTemplate, TechnicalTemplate } from './components/PDFTemplates'
+import { ModernCoverLetterTemplate, ClassicCoverLetterTemplate, MinimalCoverLetterTemplate, ExecutiveCoverLetterTemplate, CreativeCoverLetterTemplate, TechnicalCoverLetterTemplate } from './components/CoverLetterTemplates'
 import { initialResumeData } from './data/resumeData'
+import { initialCoverLetterData } from './data/coverLetterData'
 
 function App() {
   const [resumeData, setResumeData] = useState(() => {
@@ -63,6 +66,15 @@ function App() {
 
   const [template, setTemplate] = useState('modern')
   const [showEditor, setShowEditor] = useState(true)
+  const [activeTab, setActiveTab] = useState('resume') // 'resume' or 'coverLetter'
+
+  const [coverLetterData, setCoverLetterData] = useState(() => {
+    const saved = localStorage.getItem('coverLetterData')
+    if (saved) {
+      return JSON.parse(saved)
+    }
+    return initialCoverLetterData
+  })
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -71,6 +83,13 @@ function App() {
     }, 1000)
     return () => clearTimeout(timer)
   }, [resumeData])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      localStorage.setItem('coverLetterData', JSON.stringify(coverLetterData))
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [coverLetterData])
 
   // Get the PDF component based on selected template
   const getPDFComponent = () => {
@@ -93,7 +112,31 @@ function App() {
   }
 
   const getFileName = () => {
-    return `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume_${template}.pdf`
+    if (activeTab === 'resume') {
+      return `${resumeData.personalInfo.fullName.replace(/\s+/g, '_')}_Resume_${template}.pdf`
+    } else {
+      return `${coverLetterData.personalInfo.fullName.replace(/\s+/g, '_')}_CoverLetter_${template}.pdf`
+    }
+  }
+
+  // Get the Cover Letter PDF component based on selected template
+  const getCoverLetterPDFComponent = () => {
+    switch (template) {
+      case 'modern':
+        return <ModernCoverLetterTemplate coverLetterData={coverLetterData} />
+      case 'classic':
+        return <ClassicCoverLetterTemplate coverLetterData={coverLetterData} />
+      case 'minimal':
+        return <MinimalCoverLetterTemplate coverLetterData={coverLetterData} />
+      case 'executive':
+        return <ExecutiveCoverLetterTemplate coverLetterData={coverLetterData} />
+      case 'creative':
+        return <CreativeCoverLetterTemplate coverLetterData={coverLetterData} />
+      case 'technical':
+        return <TechnicalCoverLetterTemplate coverLetterData={coverLetterData} />
+      default:
+        return <ModernCoverLetterTemplate coverLetterData={coverLetterData} />
+    }
   }
 
   const handleSave = () => {
@@ -114,9 +157,37 @@ function App() {
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-full mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <FileText className="w-8 h-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Resume Builder</h1>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <FileText className="w-8 h-8 text-blue-600" />
+                <h1 className="text-2xl font-bold text-gray-900">Resume Builder</h1>
+              </div>
+
+              {/* Tab Navigation */}
+              <div className="flex items-center space-x-2 ml-8">
+                <button
+                  onClick={() => setActiveTab('resume')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    activeTab === 'resume'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Resume</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('coverLetter')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    activeTab === 'coverLetter'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Cover Letter</span>
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center space-x-3">
@@ -196,7 +267,7 @@ function App() {
 
               {/* Export PDF Button */}
               <PDFDownloadLink
-                document={getPDFComponent()}
+                document={activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
                 fileName={getFileName()}
                 className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors no-underline"
               >
@@ -226,7 +297,15 @@ function App() {
           {/* Editor Panel */}
           {showEditor && (
             <div className="bg-white rounded-lg shadow-lg p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 140px)' }}>
-              <Editor resumeData={resumeData} setResumeData={setResumeData} />
+              {activeTab === 'resume' ? (
+                <Editor resumeData={resumeData} setResumeData={setResumeData} />
+              ) : (
+                <CoverLetterEditor
+                  coverLetterData={coverLetterData}
+                  setCoverLetterData={setCoverLetterData}
+                  resumeData={resumeData}
+                />
+              )}
             </div>
           )}
 
@@ -236,9 +315,9 @@ function App() {
               width="100%"
               height="100%"
               showToolbar={false}
-              key={JSON.stringify(resumeData.customization?.sectionOrder || [])}
+              key={activeTab === 'resume' ? JSON.stringify(resumeData.customization?.sectionOrder || []) : JSON.stringify(coverLetterData)}
             >
-              {getPDFComponent()}
+              {activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
             </PDFViewer>
           </div>
         </div>
