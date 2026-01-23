@@ -97,10 +97,20 @@ const parseResumeText = (text) => {
     resumeData.personalInfo.email = emailMatch[0];
   }
 
-  // Extract phone
-  const phoneMatch = text.match(/(\+\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-  if (phoneMatch) {
-    resumeData.personalInfo.phone = phoneMatch[0];
+  // Extract phone - try multiple patterns
+  const phonePatterns = [
+    /\+?\d{1,3}[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/,  // US/International
+    /\d{10}/,  // 10 digit
+    /\d{3}[-.\s]\d{3}[-.\s]\d{4}/,  // xxx-xxx-xxxx
+    /\(\d{3}\)\s?\d{3}[-.\s]\d{4}/  // (xxx) xxx-xxxx
+  ];
+
+  for (const pattern of phonePatterns) {
+    const phoneMatch = text.match(pattern);
+    if (phoneMatch) {
+      resumeData.personalInfo.phone = phoneMatch[0];
+      break;
+    }
   }
 
   // Extract LinkedIn
@@ -117,53 +127,104 @@ const parseResumeText = (text) => {
 
   // Try to extract name (usually first line or largest text)
   if (lines.length > 0) {
-    const firstLine = lines[0];
-    // If first line looks like a name (2-4 words, capitalized, no special characters)
-    const namePattern = /^[A-Z][a-z]+(?: [A-Z][a-z]+){1,3}$/;
-    if (namePattern.test(firstLine)) {
-      resumeData.personalInfo.fullName = firstLine;
+    // Try multiple approaches to find the name
+    for (let i = 0; i < Math.min(5, lines.length); i++) {
+      const line = lines[i];
+
+      // Skip if line contains email, phone, or common non-name patterns
+      if (line.includes('@') || line.includes('http') || /\d{3}/.test(line)) {
+        continue;
+      }
+
+      // More flexible name pattern - 1-4 words, mostly letters
+      const namePattern = /^[A-Z][a-zA-Z'\-]+(?: [A-Z][a-zA-Z'\-]+){0,3}$/;
+      if (namePattern.test(line) && line.length > 3 && line.length < 50) {
+        resumeData.personalInfo.fullName = line;
+        break;
+      }
+
+      // Alternative: just letters and spaces, reasonable length
+      if (/^[A-Za-z\s]{3,40}$/.test(line) && !line.toLowerCase().includes('resume')) {
+        resumeData.personalInfo.fullName = line;
+        break;
+      }
+    }
+
+    // If still no name, use first non-contact line
+    if (!resumeData.personalInfo.fullName && lines.length > 0) {
+      const firstNonContact = lines.find(line =>
+        !line.includes('@') &&
+        !line.includes('http') &&
+        !/\d{9,}/.test(line) &&
+        line.length > 5 &&
+        line.length < 50
+      );
+      if (firstNonContact) {
+        resumeData.personalInfo.fullName = firstNonContact;
+      }
     }
   }
 
-  // Extract location (city, state pattern)
-  const locationMatch = text.match(/([A-Z][a-z]+(?:\s[A-Z][a-z]+)*),\s*([A-Z]{2}|\w+)/);
-  if (locationMatch) {
-    resumeData.personalInfo.location = locationMatch[0];
+  console.log('Extracted name:', resumeData.personalInfo.fullName);
+  console.log('Extracted email:', resumeData.personalInfo.email);
+  console.log('First 10 lines:', lines.slice(0, 10));
+
+  // Extract location - try multiple patterns
+  const locationPatterns = [
+    /([A-Z][a-z]+(?:\s[A-Z][a-z]+)*),\s*India/i,  // City, India
+    /([A-Z][a-z]+(?:\s[A-Z][a-z]+)*),\s*([A-Z]{2})/,  // City, ST (state code)
+    /([A-Z][a-z]+(?:\s[A-Z][a-z]+)*),\s*([A-Z][a-z]+)/,  // City, Country/State
+  ];
+
+  for (const pattern of locationPatterns) {
+    const locationMatch = text.match(pattern);
+    if (locationMatch) {
+      resumeData.personalInfo.location = locationMatch[0];
+      break;
+    }
   }
 
   // Extract sections based on common headers
   const sections = extractSections(lines);
+  console.log('Detected sections:', Object.keys(sections));
 
   // Parse experience section
   if (sections.experience) {
     resumeData.experience = parseExperienceSection(sections.experience);
+    console.log('Parsed experience items:', resumeData.experience.length);
   }
 
   // Parse education section
   if (sections.education) {
     resumeData.education = parseEducationSection(sections.education);
+    console.log('Parsed education items:', resumeData.education.length);
   }
 
   // Parse skills section
   if (sections.skills) {
     resumeData.skills = parseSkillsSection(sections.skills);
+    console.log('Parsed skills:', resumeData.skills.length);
   }
 
   // Parse summary/objective
   if (sections.summary) {
     resumeData.summary = sections.summary.join(' ');
+    console.log('Parsed summary length:', resumeData.summary.length);
   }
 
   // Parse projects
   if (sections.projects) {
     resumeData.projects = parseProjectsSection(sections.projects);
+    console.log('Parsed projects:', resumeData.projects.length);
   }
 
   // Parse certifications
   if (sections.certifications) {
     resumeData.certifications = parseCertificationsSection(sections.certifications);
+    console.log('Parsed certifications:', resumeData.certifications.length);
   }
 
+  console.log('Final parsed data:', resumeData);
   return resumeData;
 };
 
