@@ -1,5 +1,15 @@
 import { Document, Page, Text, View, StyleSheet, Image, Link } from '@react-pdf/renderer'
 
+// Helper function to safely join strings with separator
+const safeJoin = (items, separator = ' | ') => {
+  return items.filter(item => item && item.trim && item.trim()).join(separator);
+};
+
+// Helper to ensure non-empty string for Text components
+const safeText = (text, fallback = '') => {
+  return (text && text.trim && text.trim()) ? text : fallback;
+};
+
 // Modern Template Styles - Dynamic function
 const createModernStyles = (customization = {}) => {
   const {
@@ -188,7 +198,7 @@ export function ModernTemplate({ resumeData }) {
               </Text>
             </View>
             <Text style={modernStyles.company}>
-              {exp.company} | {exp.location}
+              {safeJoin([exp.company, exp.location])}
             </Text>
             <View style={modernStyles.bulletList}>
               {exp.description.map((desc, i) => desc && (
@@ -299,7 +309,7 @@ export function ModernTemplate({ resumeData }) {
               </Text>
             </View>
             <Text style={modernStyles.company}>
-              {vol.organization} | {vol.location}
+              {safeJoin([vol.organization, vol.location])}
             </Text>
             <View style={modernStyles.bulletList}>
               {vol.description.map((desc, i) => desc && (
@@ -893,7 +903,7 @@ export function MinimalTemplate({ resumeData }) {
               </Text>
             </View>
             <Text style={minimalStyles.companyLocation}>
-              {exp.company} | {exp.location}
+              {safeJoin([exp.company, exp.location])}
             </Text>
             <View style={minimalStyles.bulletList}>
               {exp.description.map((desc, i) => desc && (
@@ -911,7 +921,7 @@ export function MinimalTemplate({ resumeData }) {
           <View key={edu.id} style={minimalStyles.educationItem} wrap={false}>
             <View>
               <Text style={minimalStyles.degree}>{edu.degree}</Text>
-              <Text style={minimalStyles.school}>{edu.school} | {edu.location}</Text>
+              <Text style={minimalStyles.school}>{safeJoin([edu.school, edu.location])}</Text>
               {edu.gpa && <Text style={minimalStyles.school}>GPA: {edu.gpa}</Text>}
             </View>
             <Text style={minimalStyles.dateText}>{edu.graduationDate}</Text>
@@ -985,7 +995,7 @@ export function MinimalTemplate({ resumeData }) {
               </Text>
             </View>
             <Text style={minimalStyles.companyLocation}>
-              {vol.organization} | {vol.location}
+              {safeJoin([vol.organization, vol.location])}
             </Text>
             <View style={minimalStyles.bulletList}>
               {vol.description.map((desc, i) => desc && (
@@ -1243,7 +1253,7 @@ export function ExecutiveTemplate({ resumeData }) {
               {experience.map((exp) => (
                 <View key={exp.id} style={styles.experienceItem} wrap={false}>
                   <Text style={styles.jobTitle}>{exp.title}</Text>
-                  <Text style={styles.company}>{exp.company} | {exp.location}</Text>
+                  <Text style={styles.company}>{safeJoin([exp.company, exp.location])}</Text>
                   <Text style={styles.dateText}>{exp.startDate} - {exp.current ? 'Present' : exp.endDate}</Text>
                   {exp.description.map((desc, i) => desc && (
                     <View key={i} style={styles.bulletItem}>
@@ -1263,7 +1273,7 @@ export function ExecutiveTemplate({ resumeData }) {
               {education.map((edu) => (
                 <View key={edu.id} style={{ marginBottom: 12 }} wrap={false}>
                   <Text style={styles.jobTitle}>{edu.degree}</Text>
-                  <Text style={styles.company}>{edu.school} | {edu.location}</Text>
+                  <Text style={styles.company}>{safeJoin([edu.school, edu.location])}</Text>
                   <Text style={styles.dateText}>{edu.graduationDate}{edu.gpa && ` | GPA: ${edu.gpa}`}</Text>
                 </View>
               ))}
@@ -1556,9 +1566,9 @@ export function TechnicalTemplate({ resumeData }) {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.name}>{personalInfo.fullName}</Text>
+          <Text style={styles.name}>{personalInfo.fullName || 'Your Name'}</Text>
           <Text style={styles.contact}>
-            {personalInfo.email} | {personalInfo.phone} | {personalInfo.location}
+            {[personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean).join(' | ')}
           </Text>
           {personalInfo.linkedin && <Text style={styles.contact}>{personalInfo.linkedin}</Text>}
           {personalInfo.website && <Text style={styles.contact}>{personalInfo.website}</Text>}
@@ -1578,9 +1588,13 @@ export function TechnicalTemplate({ resumeData }) {
             <Text style={styles.sectionTitle}>// Experience</Text>
             {experience.map((exp) => (
               <View key={exp.id} style={styles.codeBlock} wrap={false}>
-                <Text style={styles.experienceTitle}>{exp.title}</Text>
-                <Text style={styles.experienceCompany}>{exp.company} | {exp.location}</Text>
-                <Text style={styles.experienceDate}>{exp.startDate} - {exp.current ? 'Present' : exp.endDate}</Text>
+                <Text style={styles.experienceTitle}>{exp.title || ''}</Text>
+                <Text style={styles.experienceCompany}>
+                  {[exp.company, exp.location].filter(Boolean).join(' | ')}
+                </Text>
+                <Text style={styles.experienceDate}>
+                  {exp.startDate || ''} - {exp.current ? 'Present' : (exp.endDate || '')}
+                </Text>
                 {exp.description.map((desc, i) => desc && (
                   <Text key={i} style={styles.bulletItem}>- {desc}</Text>
                 ))}
