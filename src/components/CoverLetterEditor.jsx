@@ -85,8 +85,21 @@ export default function CoverLetterEditor({ coverLetterData, setCoverLetterData,
   }
 
   const generateAISuggestions = () => {
-    // Placeholder for AI integration
-    alert('AI-assisted personalization will analyze the job description and suggest customizations. This feature can be connected to an AI API like OpenAI.')
+    // Placeholder for AI integration - not connected to actual AI service
+    if (!jobDescription.trim()) {
+      alert('Please paste a job description first!')
+      return
+    }
+
+    alert(
+      '⚠️ AI Integration Not Active\n\n' +
+      'The AI Helper UI is ready but not connected to an AI service.\n\n' +
+      'To enable AI-powered suggestions:\n' +
+      '1. Set up OpenAI API key\n' +
+      '2. Create backend endpoint for secure API calls\n' +
+      '3. Replace this function with actual API integration\n\n' +
+      'See README "AI Integration" section for implementation guide.'
+    )
   }
 
   const SectionHeader = ({ title, section, onAdd = null }) => (
@@ -127,11 +140,17 @@ export default function CoverLetterEditor({ coverLetterData, setCoverLetterData,
 
       {/* AI Helper Section */}
       <section className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
-        <SectionHeader title="AI-Assisted Personalization" section="aiHelper" />
+        <SectionHeader title="AI-Assisted Personalization (Not Connected)" section="aiHelper" />
         {!collapsedSections.aiHelper && (
           <div className="space-y-4">
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> This is a placeholder UI for AI integration. Currently not connected to any AI service.
+                See README for setup instructions.
+              </p>
+            </div>
             <p className="text-sm text-gray-600">
-              Paste the job description below, and get AI-powered suggestions to personalize your cover letter.
+              Paste the job description below to prepare for AI-powered suggestions (when connected).
             </p>
             <textarea
               placeholder="Paste the job description here..."
@@ -142,14 +161,15 @@ export default function CoverLetterEditor({ coverLetterData, setCoverLetterData,
             />
             <button
               onClick={generateAISuggestions}
-              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors cursor-not-allowed"
+              title="AI integration not configured"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Generate AI Suggestions</span>
+              <span>Generate AI Suggestions (Not Active)</span>
             </button>
             <div className="mt-4 p-3 bg-purple-100 rounded-lg">
               <p className="text-sm text-purple-900">
-                <strong>Pro Tip:</strong> The AI will analyze the job description and suggest ways to tailor your opening, body paragraphs, and skills mentions to match the employer's needs.
+                <strong>Future Feature:</strong> When connected to an AI service (like OpenAI), this will analyze the job description and suggest ways to tailor your opening, body paragraphs, and skills mentions to match the employer's needs.
               </p>
             </div>
           </div>

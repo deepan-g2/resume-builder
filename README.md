@@ -27,7 +27,7 @@ A modern, visual resume editor with live preview and multiple professional templ
 - ✅ **Matching Templates** - Cover letters styled to match your resume
 - ✅ **Job Integration** - Fields for position, company, and hiring manager details
 - ✅ **Smart Placeholders** - Auto-replace [Position] and [Company] throughout the letter
-- ✅ **AI Helper Interface** - Paste job descriptions for personalization guidance
+- ⚠️ **AI Helper Interface** - UI ready for AI integration (requires OpenAI API setup)
 - ✅ **Import from Resume** - One-click import of personal info and styling
 - ✅ **Multi-Paragraph Editor** - Add/remove body paragraphs as needed
 - ✅ **PDF Export** - Professional cover letter PDFs
@@ -107,7 +107,7 @@ The ATS score is calculated based on:
 1. **Select Cover Letter Tab** - Click the "Cover Letter" tab in the header
 2. **Import from Resume** - Click "Import from Resume" to copy personal info and styling
 3. **Job Information** - Fill in the position, company, and hiring manager details
-4. **AI Helper (Optional)** - Paste the job description to get personalization guidance
+4. **AI Helper** - Currently a placeholder UI (see "AI Integration" section below to connect)
 5. **Edit Content** - Customize the opening, body paragraphs, and closing
 6. **Use Placeholders** - [Position] and [Company] will auto-replace throughout the letter
 
@@ -289,10 +289,82 @@ className="bg-gradient-to-r from-purple-600 to-purple-700"
 - **Call to action** - Express desire for interview in closing
 - **Proofread carefully** - Errors are especially harmful in cover letters
 
+## 🤖 AI Integration (Optional Enhancement)
+
+The Cover Letter Generator includes an AI Helper UI that's ready for integration but **not currently connected to an AI service**. To enable AI-powered personalization:
+
+### Option 1: OpenAI API (Recommended)
+```javascript
+// In src/components/CoverLetterEditor.jsx, replace the generateAISuggestions function:
+
+const generateAISuggestions = async () => {
+  if (!jobDescription.trim()) {
+    alert('Please paste a job description first')
+    return
+  }
+
+  try {
+    const response = await fetch('/api/ai-suggestions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jobDescription,
+        currentLetter: {
+          opening: coverLetterData.opening,
+          body: coverLetterData.body
+        }
+      })
+    })
+
+    const suggestions = await response.json()
+    // Display suggestions to user
+    alert(`AI Suggestions:\n${suggestions.message}`)
+  } catch (error) {
+    alert('Error connecting to AI service')
+  }
+}
+```
+
+### Backend API Required
+You'll need a backend endpoint to securely call OpenAI (never expose API keys in frontend):
+
+```javascript
+// Example backend endpoint (Node.js/Express)
+app.post('/api/ai-suggestions', async (req, res) => {
+  const { jobDescription, currentLetter } = req.body
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'gpt-4',
+      messages: [{
+        role: 'user',
+        content: `Analyze this job description and suggest improvements for the cover letter...`
+      }]
+    })
+  })
+
+  const data = await response.json()
+  res.json(data)
+})
+```
+
+### Why It's Not Connected Now
+- Requires OpenAI API key (costs money per request)
+- Needs backend service for security (can't expose API keys in browser)
+- Adds complexity for basic use case
+
+The current implementation provides full cover letter functionality without AI dependency.
+
 ## 🐛 Known Issues
 
 - PDF export might not capture all colors perfectly on some browsers
 - Large resumes (3+ pages) may need multiple PDF pages
+- AI Helper is a placeholder UI only (see "AI Integration" section above)
 
 ## 🤝 Contributing
 
