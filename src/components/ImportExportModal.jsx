@@ -46,17 +46,40 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
       }
 
       if (parsedData) {
-        // Merge with current customization settings
+        // Merge with current customization settings or use defaults
         const mergedData = {
           ...parsedData,
-          customization: resumeData.customization,
-          sectionVisibility: resumeData.sectionVisibility
+          customization: resumeData.customization || {
+            accentColor: "#2563eb",
+            fontFamily: "Helvetica",
+            fontSize: 11,
+            lineSpacing: 1.5,
+            paragraphSpacing: 12,
+            pageMargin: 40,
+            showPageBorder: false,
+            borderWidth: 2,
+            borderColor: "#e5e7eb",
+            sectionOrder: ["summary", "experience", "projects", "education", "certifications", "skills", "languages", "volunteer", "awards"]
+          },
+          sectionVisibility: resumeData.sectionVisibility || {
+            summary: true,
+            experience: true,
+            education: true,
+            skills: true,
+            projects: true,
+            certifications: true,
+            languages: true,
+            volunteer: true,
+            awards: true
+          }
         };
         setResumeData(mergedData);
         setTimeout(() => onClose(), 1500);
       }
     } catch (error) {
-      showMessage('error', error.message || 'Failed to import file');
+      console.error('Import error:', error);
+      const errorMsg = error.message || 'Failed to import file. Please try a different file.';
+      showMessage('error', errorMsg);
     } finally {
       setIsProcessing(false);
       e.target.value = '';
@@ -73,11 +96,32 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
     try {
       const parsedData = parseLinkedInData(textInput);
       if (parsedData) {
-        // Merge with current customization settings
+        // Merge with current customization settings or use defaults
         const mergedData = {
           ...parsedData,
-          customization: resumeData.customization,
-          sectionVisibility: resumeData.sectionVisibility
+          customization: resumeData.customization || {
+            accentColor: "#2563eb",
+            fontFamily: "Helvetica",
+            fontSize: 11,
+            lineSpacing: 1.5,
+            paragraphSpacing: 12,
+            pageMargin: 40,
+            showPageBorder: false,
+            borderWidth: 2,
+            borderColor: "#e5e7eb",
+            sectionOrder: ["summary", "experience", "projects", "education", "certifications", "skills", "languages", "volunteer", "awards"]
+          },
+          sectionVisibility: resumeData.sectionVisibility || {
+            summary: true,
+            experience: true,
+            education: true,
+            skills: true,
+            projects: true,
+            certifications: true,
+            languages: true,
+            volunteer: true,
+            awards: true
+          }
         };
         setResumeData(mergedData);
         showMessage('success', 'LinkedIn data imported successfully!');
@@ -87,7 +131,8 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
         showMessage('error', 'Failed to parse LinkedIn data. Please ensure you pasted valid JSON.');
       }
     } catch (error) {
-      showMessage('error', error.message || 'Failed to import LinkedIn data');
+      console.error('LinkedIn import error:', error);
+      showMessage('error', error.message || 'Failed to import LinkedIn data. Please check the format.');
     } finally {
       setIsProcessing(false);
     }

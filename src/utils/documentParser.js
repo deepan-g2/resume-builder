@@ -1,10 +1,21 @@
 import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure PDF.js worker
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
+// Dynamically import pdfjs-dist to avoid SSR issues
+let pdfjsLib = null;
+
+const initPdfJs = async () => {
+  if (!pdfjsLib && typeof window !== 'undefined') {
+    try {
+      pdfjsLib = await import('pdfjs-dist');
+      // Use a more reliable CDN path
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+    } catch (error) {
+      console.error('Failed to load PDF.js:', error);
+      throw new Error('PDF parsing library not available. Please check your internet connection.');
+    }
+  }
+  return pdfjsLib;
+};
 
 // Parse DOCX file
 export const parseDOCX = async (file) => {
@@ -21,8 +32,15 @@ export const parseDOCX = async (file) => {
 // Parse PDF file
 export const parsePDF = async (file) => {
   try {
+    // Initialize PDF.js
+    const pdfjs = await initPdfJs();
+    if (!pdfjs) {
+      throw new Error('PDF parsing library not available');
+    }
+
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
 
     let fullText = '';
     for (let i = 1; i <= pdf.numPages; i++) {
@@ -35,7 +53,10 @@ export const parsePDF = async (file) => {
     return parseResumeText(fullText);
   } catch (error) {
     console.error('Error parsing PDF:', error);
-    throw new Error('Failed to parse PDF file. Please ensure it is a valid document.');
+    if (error.message && error.message.includes('Worker')) {
+      throw new Error('Failed to load PDF worker. Please check your internet connection and try again.');
+    }
+    throw new Error('Failed to parse PDF file. Please ensure it is a valid PDF document.');
   }
 };
 

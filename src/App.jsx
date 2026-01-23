@@ -164,11 +164,22 @@ function App() {
 
   const handleDuplicate = () => {
     try {
-      const saved = saveResume(resumeData);
-      const duplicated = duplicateResume(saved.id);
-      setResumeData(duplicated.data);
+      // Create a deep copy of the current resume data
+      const duplicatedData = JSON.parse(JSON.stringify(resumeData));
+
+      // Update the name to indicate it's a copy
+      if (duplicatedData.personalInfo?.fullName) {
+        duplicatedData.personalInfo.fullName = `${duplicatedData.personalInfo.fullName} (Copy)`;
+      }
+
+      // Save the duplicated resume
+      const newResume = saveResume(duplicatedData);
+
+      // Load the duplicated resume
+      setResumeData(newResume.data);
       alert('Resume duplicated successfully!');
     } catch (error) {
+      console.error('Duplicate error:', error);
       alert('Failed to duplicate resume. Please try again.');
     }
   }
