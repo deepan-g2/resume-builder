@@ -1,21 +1,15 @@
 import mammoth from 'mammoth';
+import * as pdfjsLib from 'pdfjs-dist';
 
-// Dynamically import pdfjs-dist to avoid SSR issues
-let pdfjsLib = null;
+// Configure PDF.js to use the worker from node_modules
+// This works better with Vite's bundling
+if (typeof window !== 'undefined') {
+  // Try multiple CDN sources as fallback
+  const workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
-const initPdfJs = async () => {
-  if (!pdfjsLib && typeof window !== 'undefined') {
-    try {
-      pdfjsLib = await import('pdfjs-dist');
-      // Use a more reliable CDN path
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
-    } catch (error) {
-      console.error('Failed to load PDF.js:', error);
-      throw new Error('PDF parsing library not available. Please check your internet connection.');
-    }
-  }
-  return pdfjsLib;
-};
+  console.log('PDF.js worker configured:', workerSrc);
+}
 
 // Parse DOCX file
 export const parseDOCX = async (file) => {
@@ -32,14 +26,16 @@ export const parseDOCX = async (file) => {
 // Parse PDF file
 export const parsePDF = async (file) => {
   try {
-    // Initialize PDF.js
-    const pdfjs = await initPdfJs();
-    if (!pdfjs) {
-      throw new Error('PDF parsing library not available');
-    }
-
     const arrayBuffer = await file.arrayBuffer();
-    const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+
+    // Use disableWorker option as fallback if worker fails to load
+    const loadingTask = pdfjsLib.getDocument({
+      data: arrayBuffer,
+      // Disable worker as fallback - slower but more reliable
+      useWorkerFetch: false,
+      isEvalSupported: false,
+    });
+
     const pdf = await loadingTask.promise;
 
     let fullText = '';
@@ -53,10 +49,21 @@ export const parsePDF = async (file) => {
     return parseResumeText(fullText);
   } catch (error) {
     console.error('Error parsing PDF:', error);
+
+    // Provide helpful error messages
     if (error.message && error.message.includes('Worker')) {
-      throw new Error('Failed to load PDF worker. Please check your internet connection and try again.');
+      throw new Error('PDF import requires internet connection. Please check your connection and try again, or use DOCX/JSON import instead.');
     }
-    throw new Error('Failed to parse PDF file. Please ensure it is a valid PDF document.');
+
+    if (error.message && error.message.includes('password')) {
+      throw new Error('This PDF is password-protected. Please use an unprotected PDF file.');
+    }
+
+    if (error.message && error.message.includes('Invalid PDF')) {
+      throw new Error('Invalid or corrupted PDF file. Please try a different file or use DOCX/JSON import.');
+    }
+
+    throw new Error('Failed to parse PDF file. Try DOCX or JSON import as an alternative.');
   }
 };
 

@@ -26,15 +26,19 @@
 **Symptoms**: Error messages like "Failed to load PDF worker" or "Failed to parse PDF"
 
 **Causes**:
-- No internet connection (PDF.js worker loads from CDN)
+- No internet connection (PDF.js worker loads from CDN - jsdelivr.net)
 - Corrupted or protected PDF file
 - PDF with complex layouts or scanned images
+- Browser blocking CDN access
 
 **Solutions**:
-1. **Check Internet Connection**: The PDF parser requires internet to load the PDF.js worker from unpkg.com
+1. **Check Internet Connection**: The PDF parser requires internet to load the PDF.js worker from cdn.jsdelivr.net
 2. **Try a Different PDF**: Use a text-based PDF resume (not a scanned image)
-3. **Check Browser Console**: Look for specific error messages in DevTools (F12)
-4. **Use Alternative Formats**: If PDF fails, try DOCX or JSON import instead
+3. **Use Alternative Formats**: **RECOMMENDED** - Use DOCX or JSON import for more reliable results
+4. **Check Browser Console**: Look for specific error messages in DevTools (F12)
+5. **Allow CDN Access**: Ensure your browser/network allows access to cdn.jsdelivr.net
+
+**Important**: PDF import is less reliable than DOCX or JSON. We recommend using those formats when possible.
 
 **Note**: The PDF parser works best with:
 - Standard resume formats (not multi-column layouts)

@@ -257,9 +257,14 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
               {importMethod === 'file' ? (
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Import from File</h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 mb-2">
                     Upload your resume in PDF, DOCX, or JSON format. We'll automatically extract the information.
                   </p>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-yellow-800">
+                      <strong>Note:</strong> PDF import requires internet connection. For best results, use DOCX or JSON format. Always review imported data.
+                    </p>
+                  </div>
 
                   <label className="block">
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer">
