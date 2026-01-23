@@ -426,3 +426,25 @@ export function TechnicalCoverLetterTemplate({ coverLetterData }) {
   }
   return <ModernCoverLetterTemplate coverLetterData={customData} />
 }
+
+// Academic CV Cover Letter Template
+export function AcademicCoverLetterTemplate({ coverLetterData }) {
+  const customData = {
+    ...coverLetterData,
+    customization: {
+      ...coverLetterData.customization,
+      fontFamily: 'Times-Roman'
+    }
+  }
+  return <ClassicCoverLetterTemplate coverLetterData={customData} />
+}
+
+// International (Europass) Cover Letter Template
+export function InternationalCoverLetterTemplate({ coverLetterData }) {
+  return <ClassicCoverLetterTemplate coverLetterData={coverLetterData} />
+}
+
+// Portfolio Cover Letter Template
+export function PortfolioCoverLetterTemplate({ coverLetterData }) {
+  return <ModernCoverLetterTemplate coverLetterData={coverLetterData} />
+}

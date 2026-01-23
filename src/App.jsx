@@ -4,8 +4,8 @@ import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
 import Editor from './components/Editor'
 import CoverLetterEditor from './components/CoverLetterEditor'
 import ImportExportModal from './components/ImportExportModal'
-import { ModernTemplate, ClassicTemplate, MinimalTemplate, ExecutiveTemplate, CreativeTemplate, TechnicalTemplate } from './components/PDFTemplates'
-import { ModernCoverLetterTemplate, ClassicCoverLetterTemplate, MinimalCoverLetterTemplate, ExecutiveCoverLetterTemplate, CreativeCoverLetterTemplate, TechnicalCoverLetterTemplate } from './components/CoverLetterTemplates'
+import { ModernTemplate, ClassicTemplate, MinimalTemplate, ExecutiveTemplate, CreativeTemplate, TechnicalTemplate, AcademicTemplate, InternationalTemplate, PortfolioTemplate } from './components/PDFTemplates'
+import { ModernCoverLetterTemplate, ClassicCoverLetterTemplate, MinimalCoverLetterTemplate, ExecutiveCoverLetterTemplate, CreativeCoverLetterTemplate, TechnicalCoverLetterTemplate, AcademicCoverLetterTemplate, InternationalCoverLetterTemplate, PortfolioCoverLetterTemplate } from './components/CoverLetterTemplates'
 import { initialResumeData } from './data/resumeData'
 import { initialCoverLetterData } from './data/coverLetterData'
 import { duplicateResume, saveResume } from './utils/resumeManager'
@@ -129,6 +129,12 @@ function App() {
         return <CreativeTemplate resumeData={resumeData} />
       case 'technical':
         return <TechnicalTemplate resumeData={resumeData} />
+      case 'academic':
+        return <AcademicTemplate resumeData={resumeData} />
+      case 'international':
+        return <InternationalTemplate resumeData={resumeData} />
+      case 'portfolio':
+        return <PortfolioTemplate resumeData={resumeData} />
       default:
         return <ModernTemplate resumeData={resumeData} />
     }
@@ -157,6 +163,12 @@ function App() {
         return <CreativeCoverLetterTemplate coverLetterData={coverLetterData} />
       case 'technical':
         return <TechnicalCoverLetterTemplate coverLetterData={coverLetterData} />
+      case 'academic':
+        return <AcademicCoverLetterTemplate coverLetterData={coverLetterData} />
+      case 'international':
+        return <InternationalCoverLetterTemplate coverLetterData={coverLetterData} />
+      case 'portfolio':
+        return <PortfolioCoverLetterTemplate coverLetterData={coverLetterData} />
       default:
         return <ModernCoverLetterTemplate coverLetterData={coverLetterData} />
     }
@@ -266,6 +278,9 @@ function App() {
                 <option value="executive">Executive</option>
                 <option value="creative">Creative</option>
                 <option value="technical">Technical</option>
+                <option value="academic">Academic CV</option>
+                <option value="international">International (Europass)</option>
+                <option value="portfolio">Portfolio</option>
               </select>
 
               {/* Color Picker Dropdown */}

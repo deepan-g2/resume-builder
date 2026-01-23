@@ -1631,3 +1631,742 @@ export function TechnicalTemplate({ resumeData }) {
     </Document>
   )
 }
+
+// Academic CV Template Styles - Publication Focused
+const createAcademicStyles = (customization = {}) => {
+  const { accentColor = '#2563eb', fontFamily = 'Times-Roman', fontSize = 11, fontWeight = 'normal', lineSpacing = 1.5, paragraphSpacing = 12, pageMargin = 40 } = customization
+
+  return StyleSheet.create({
+    page: {
+      backgroundColor: '#ffffff',
+      fontFamily: 'Times-Roman',
+      padding: pageMargin,
+    },
+    header: {
+      textAlign: 'center',
+      marginBottom: 24,
+      borderBottom: `2px solid ${accentColor}`,
+      paddingBottom: 16,
+    },
+    name: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: '#111827',
+      marginBottom: 8,
+      fontFamily: 'Times-Bold',
+    },
+    contact: {
+      fontSize: 10,
+      color: '#374151',
+      marginBottom: 3,
+    },
+    sectionTitle: {
+      fontSize: fontSize * 1.4,
+      fontWeight: 'bold',
+      color: accentColor,
+      marginTop: 16,
+      marginBottom: 10,
+      borderBottom: `1px solid ${accentColor}`,
+      paddingBottom: 4,
+      fontFamily: 'Times-Bold',
+      textTransform: 'uppercase',
+    },
+    subsectionTitle: {
+      fontSize: fontSize * 1.1,
+      fontWeight: 'bold',
+      color: '#111827',
+      marginTop: 8,
+      marginBottom: 6,
+      fontFamily: 'Times-Bold',
+    },
+    publicationItem: {
+      fontSize: 10,
+      color: '#374151',
+      marginBottom: 8,
+      paddingLeft: 20,
+      textIndent: -20,
+      lineHeight: lineSpacing,
+    },
+    experienceItem: {
+      marginBottom: 12,
+    },
+    positionTitle: {
+      fontSize: 11,
+      fontWeight: 'bold',
+      color: '#111827',
+      fontFamily: 'Times-Bold',
+    },
+    institution: {
+      fontSize: 10,
+      color: '#374151',
+      fontStyle: 'italic',
+      fontFamily: 'Times-Italic',
+    },
+    dateText: {
+      fontSize: 10,
+      color: '#6b7280',
+      marginBottom: 4,
+    },
+    bulletItem: {
+      fontSize: 10,
+      color: '#374151',
+      marginBottom: 3,
+      paddingLeft: 15,
+    },
+  })
+}
+
+// Academic CV Template Component
+export function AcademicTemplate({ resumeData }) {
+  const { personalInfo, summary, experience, education, skills, projects = [], certifications = [], languages = [], volunteer = [], awards = [], sectionVisibility = {}, customization = {} } = resumeData
+  const styles = createAcademicStyles(customization)
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Header */}
+        <View style={styles.header} wrap={false}>
+          <Text style={styles.name}>{personalInfo.fullName}</Text>
+          {personalInfo.email && <Text style={styles.contact}>{personalInfo.email}</Text>}
+          {personalInfo.phone && <Text style={styles.contact}>{personalInfo.phone}</Text>}
+          {personalInfo.location && <Text style={styles.contact}>{personalInfo.location}</Text>}
+          {personalInfo.website && <Text style={styles.contact}>{personalInfo.website}</Text>}
+          {personalInfo.linkedin && <Text style={styles.contact}>{personalInfo.linkedin}</Text>}
+        </View>
+
+        {/* Research Interests / Summary */}
+        {summary && sectionVisibility.summary !== false && (
+          <View wrap={false}>
+            <Text style={styles.sectionTitle}>Research Interests</Text>
+            <Text style={{ fontSize: 10, lineHeight: 1.6, color: '#374151' }}>{summary}</Text>
+          </View>
+        )}
+
+        {/* Education - Priority section for academics */}
+        {education.length > 0 && sectionVisibility.education !== false && (
+          <View>
+            <Text style={styles.sectionTitle}>Education</Text>
+            {education.map((edu) => (
+              <View key={edu.id} style={styles.experienceItem} wrap={false}>
+                <Text style={styles.positionTitle}>{edu.degree}</Text>
+                <Text style={styles.institution}>{edu.school}, {edu.location}</Text>
+                <Text style={styles.dateText}>{edu.graduationDate}</Text>
+                {edu.gpa && <Text style={{ fontSize: 10, color: '#374151' }}>GPA: {edu.gpa}</Text>}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Academic Experience */}
+        {experience.length > 0 && sectionVisibility.experience !== false && (
+          <View>
+            <Text style={styles.sectionTitle}>Academic Appointments</Text>
+            {experience.map((exp) => (
+              <View key={exp.id} style={styles.experienceItem} wrap={false}>
+                <Text style={styles.positionTitle}>{exp.title}</Text>
+                <Text style={styles.institution}>{exp.company}, {exp.location}</Text>
+                <Text style={styles.dateText}>{exp.startDate} - {exp.current ? 'Present' : exp.endDate}</Text>
+                {exp.description.map((desc, i) => desc && (
+                  <Text key={i} style={styles.bulletItem}>• {desc}</Text>
+                ))}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Projects as Research Projects */}
+        {projects.length > 0 && sectionVisibility.projects !== false && (
+          <View>
+            <Text style={styles.sectionTitle}>Research Projects</Text>
+            {projects.map((proj) => (
+              <View key={proj.id} style={styles.experienceItem} wrap={false}>
+                <Text style={styles.positionTitle}>{proj.name}</Text>
+                {proj.date && <Text style={styles.dateText}>{proj.date}</Text>}
+                {proj.description && (
+                  <Text style={{ fontSize: 10, color: '#374151', marginBottom: 4 }}>{proj.description}</Text>
+                )}
+                {proj.technologies.length > 0 && (
+                  <Text style={{ fontSize: 9, color: '#6b7280' }}>Methods: {proj.technologies.join(', ')}</Text>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Awards & Honors */}
+        {awards.length > 0 && sectionVisibility.awards !== false && (
+          <View>
+            <Text style={styles.sectionTitle}>Awards & Honors</Text>
+            {awards.map((award) => (
+              <View key={award.id} style={{ marginBottom: 8 }} wrap={false}>
+                <Text style={styles.positionTitle}>{award.title}</Text>
+                <Text style={styles.institution}>{award.issuer}</Text>
+                {award.date && <Text style={styles.dateText}>{award.date}</Text>}
+                {award.description && (
+                  <Text style={{ fontSize: 10, color: '#374151' }}>{award.description}</Text>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Certifications as Professional Memberships */}
+        {certifications.length > 0 && sectionVisibility.certifications !== false && (
+          <View>
+            <Text style={styles.sectionTitle}>Professional Memberships</Text>
+            {certifications.map((cert) => (
+              <View key={cert.id} style={{ marginBottom: 6 }} wrap={false}>
+                <Text style={styles.positionTitle}>{cert.name}</Text>
+                <Text style={styles.institution}>{cert.issuer}</Text>
+                <Text style={styles.dateText}>{cert.date}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Skills as Research Skills */}
+        {skills.length > 0 && sectionVisibility.skills !== false && (
+          <View wrap={false}>
+            <Text style={styles.sectionTitle}>Research Skills & Methodologies</Text>
+            <Text style={{ fontSize: 10, color: '#374151', lineHeight: 1.5 }}>
+              {skills.join(' • ')}
+            </Text>
+          </View>
+        )}
+
+        {/* Languages */}
+        {languages.length > 0 && sectionVisibility.languages !== false && (
+          <View wrap={false}>
+            <Text style={styles.sectionTitle}>Languages</Text>
+            <Text style={{ fontSize: 10, color: '#374151', lineHeight: 1.5 }}>
+              {languages.map(lang => `${lang.language} (${lang.proficiency})`).join(' • ')}
+            </Text>
+          </View>
+        )}
+      </Page>
+    </Document>
+  )
+}
+
+// International/Europass CV Template Styles
+const createInternationalStyles = (customization = {}) => {
+  const { accentColor = '#2563eb', fontFamily = 'Helvetica', fontSize = 11, fontWeight = 'normal', lineSpacing = 1.5, paragraphSpacing = 12, pageMargin = 40 } = customization
+
+  return StyleSheet.create({
+    page: {
+      backgroundColor: '#ffffff',
+      fontFamily: 'Helvetica',
+      flexDirection: 'row',
+    },
+    leftColumn: {
+      width: '30%',
+      backgroundColor: '#f9fafb',
+      padding: 20,
+    },
+    rightColumn: {
+      width: '70%',
+      padding: 30,
+    },
+    photo: {
+      width: 100,
+      height: 120,
+      objectFit: 'cover',
+      marginBottom: 15,
+      border: '2px solid #d1d5db',
+    },
+    name: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: accentColor,
+      marginBottom: 12,
+    },
+    sidebarSection: {
+      marginTop: 16,
+      marginBottom: 16,
+    },
+    sidebarTitle: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: accentColor,
+      marginBottom: 6,
+      textTransform: 'uppercase',
+    },
+    sidebarText: {
+      fontSize: 9,
+      color: '#374151',
+      marginBottom: 3,
+      lineHeight: 1.4,
+    },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: accentColor,
+      marginTop: 12,
+      marginBottom: 8,
+      backgroundColor: '#f3f4f6',
+      padding: 6,
+      textTransform: 'uppercase',
+    },
+    entryTitle: {
+      fontSize: 11,
+      fontWeight: 'bold',
+      color: '#111827',
+    },
+    entrySubtitle: {
+      fontSize: 10,
+      color: '#374151',
+      marginBottom: 3,
+    },
+    entryDate: {
+      fontSize: 9,
+      color: '#6b7280',
+      marginBottom: 6,
+    },
+    bulletItem: {
+      fontSize: 9,
+      color: '#374151',
+      marginBottom: 3,
+      paddingLeft: 12,
+      lineHeight: 1.4,
+    },
+    experienceItem: {
+      marginBottom: 14,
+    },
+  })
+}
+
+// International/Europass CV Template Component
+export function InternationalTemplate({ resumeData }) {
+  const { personalInfo, summary, experience, education, skills, projects = [], certifications = [], languages = [], volunteer = [], awards = [], sectionVisibility = {}, customization = {} } = resumeData
+  const styles = createInternationalStyles(customization)
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Left Sidebar */}
+        <View style={styles.leftColumn}>
+          {personalInfo.photo && (
+            <Image src={personalInfo.photo} style={styles.photo} />
+          )}
+
+          <Text style={styles.name}>{personalInfo.fullName}</Text>
+
+          {/* Personal Information */}
+          <View style={styles.sidebarSection}>
+            <Text style={styles.sidebarTitle}>Contact</Text>
+            {personalInfo.email && <Text style={styles.sidebarText}>{personalInfo.email}</Text>}
+            {personalInfo.phone && <Text style={styles.sidebarText}>{personalInfo.phone}</Text>}
+            {personalInfo.location && <Text style={styles.sidebarText}>{personalInfo.location}</Text>}
+            {personalInfo.linkedin && <Text style={styles.sidebarText}>{personalInfo.linkedin}</Text>}
+            {personalInfo.website && <Text style={styles.sidebarText}>{personalInfo.website}</Text>}
+          </View>
+
+          {/* Languages */}
+          {languages.length > 0 && sectionVisibility.languages !== false && (
+            <View style={styles.sidebarSection}>
+              <Text style={styles.sidebarTitle}>Languages</Text>
+              {languages.map((lang) => (
+                <View key={lang.id} style={{ marginBottom: 4 }}>
+                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#111827' }}>
+                    {lang.language}
+                  </Text>
+                  <Text style={styles.sidebarText}>{lang.proficiency}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Skills */}
+          {skills.length > 0 && sectionVisibility.skills !== false && (
+            <View style={styles.sidebarSection}>
+              <Text style={styles.sidebarTitle}>Skills</Text>
+              {skills.map((skill, i) => (
+                <Text key={i} style={styles.sidebarText}>• {skill}</Text>
+              ))}
+            </View>
+          )}
+
+          {/* Certifications */}
+          {certifications.length > 0 && sectionVisibility.certifications !== false && (
+            <View style={styles.sidebarSection}>
+              <Text style={styles.sidebarTitle}>Certifications</Text>
+              {certifications.map((cert) => (
+                <View key={cert.id} style={{ marginBottom: 6 }}>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#111827' }}>
+                    {cert.name}
+                  </Text>
+                  <Text style={{ fontSize: 8, color: '#6b7280' }}>{cert.issuer}</Text>
+                  <Text style={{ fontSize: 8, color: '#9ca3af' }}>{cert.date}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Right Column - Main Content */}
+        <View style={styles.rightColumn}>
+          {/* Profile / Summary */}
+          {summary && sectionVisibility.summary !== false && (
+            <View wrap={false}>
+              <Text style={styles.sectionTitle}>Profile</Text>
+              <Text style={{ fontSize: 10, lineHeight: 1.6, color: '#374151', marginBottom: 12 }}>
+                {summary}
+              </Text>
+            </View>
+          )}
+
+          {/* Work Experience */}
+          {experience.length > 0 && sectionVisibility.experience !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Work Experience</Text>
+              {experience.map((exp) => (
+                <View key={exp.id} style={styles.experienceItem} wrap={false}>
+                  <Text style={styles.entryTitle}>{exp.title}</Text>
+                  <Text style={styles.entrySubtitle}>{exp.company}, {exp.location}</Text>
+                  <Text style={styles.entryDate}>
+                    {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+                  </Text>
+                  {exp.description.map((desc, i) => desc && (
+                    <Text key={i} style={styles.bulletItem}>• {desc}</Text>
+                  ))}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Education */}
+          {education.length > 0 && sectionVisibility.education !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Education and Training</Text>
+              {education.map((edu) => (
+                <View key={edu.id} style={styles.experienceItem} wrap={false}>
+                  <Text style={styles.entryTitle}>{edu.degree}</Text>
+                  <Text style={styles.entrySubtitle}>{edu.school}, {edu.location}</Text>
+                  <Text style={styles.entryDate}>{edu.graduationDate}</Text>
+                  {edu.gpa && <Text style={{ fontSize: 9, color: '#374151' }}>Grade: {edu.gpa}</Text>}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Projects */}
+          {projects.length > 0 && sectionVisibility.projects !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Projects</Text>
+              {projects.map((proj) => (
+                <View key={proj.id} style={styles.experienceItem} wrap={false}>
+                  <Text style={styles.entryTitle}>{proj.name}</Text>
+                  {proj.date && <Text style={styles.entryDate}>{proj.date}</Text>}
+                  {proj.description && (
+                    <Text style={{ fontSize: 9, color: '#374151', marginBottom: 4 }}>
+                      {proj.description}
+                    </Text>
+                  )}
+                  {proj.technologies.length > 0 && (
+                    <Text style={{ fontSize: 9, color: '#6b7280' }}>
+                      Technologies: {proj.technologies.join(', ')}
+                    </Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Volunteer Experience */}
+          {volunteer.length > 0 && sectionVisibility.volunteer !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Volunteer Experience</Text>
+              {volunteer.map((vol) => (
+                <View key={vol.id} style={styles.experienceItem} wrap={false}>
+                  <Text style={styles.entryTitle}>{vol.role}</Text>
+                  <Text style={styles.entrySubtitle}>{vol.organization}, {vol.location}</Text>
+                  <Text style={styles.entryDate}>
+                    {vol.startDate} - {vol.current ? 'Present' : vol.endDate}
+                  </Text>
+                  {vol.description.map((desc, i) => desc && (
+                    <Text key={i} style={styles.bulletItem}>• {desc}</Text>
+                  ))}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Awards */}
+          {awards.length > 0 && sectionVisibility.awards !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Awards and Achievements</Text>
+              {awards.map((award) => (
+                <View key={award.id} style={{ marginBottom: 10 }} wrap={false}>
+                  <Text style={styles.entryTitle}>{award.title}</Text>
+                  <Text style={styles.entrySubtitle}>{award.issuer}</Text>
+                  {award.date && <Text style={styles.entryDate}>{award.date}</Text>}
+                  {award.description && (
+                    <Text style={{ fontSize: 9, color: '#374151' }}>{award.description}</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </Page>
+    </Document>
+  )
+}
+
+// Portfolio Template Styles - Visual Project Showcase
+const createPortfolioStyles = (customization = {}) => {
+  const { accentColor = '#2563eb', fontFamily = 'Helvetica', fontSize = 11 } = customization
+
+  return StyleSheet.create({
+    page: {
+      backgroundColor: '#ffffff',
+      fontFamily: 'Helvetica',
+      padding: 0,
+    },
+    heroSection: {
+      backgroundColor: accentColor,
+      padding: 50,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    photo: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      border: '4px solid #ffffff',
+      marginBottom: 16,
+      objectFit: 'cover',
+    },
+    name: {
+      fontSize: 36,
+      fontWeight: 'bold',
+      color: '#ffffff',
+      marginBottom: 8,
+      textAlign: 'center',
+    },
+    tagline: {
+      fontSize: 14,
+      color: '#ffffff',
+      opacity: 0.95,
+      textAlign: 'center',
+      marginBottom: 12,
+    },
+    contactRow: {
+      flexDirection: 'row',
+      gap: 15,
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      marginTop: 8,
+    },
+    contactItem: {
+      fontSize: 10,
+      color: '#ffffff',
+    },
+    content: {
+      padding: 40,
+    },
+    sectionTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: accentColor,
+      marginTop: 20,
+      marginBottom: 15,
+      textAlign: 'center',
+    },
+    projectCard: {
+      marginBottom: 20,
+      padding: 15,
+      backgroundColor: '#f9fafb',
+      borderRadius: 8,
+      borderLeft: `4px solid ${accentColor}`,
+    },
+    projectTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#111827',
+      marginBottom: 6,
+    },
+    projectDescription: {
+      fontSize: 10,
+      color: '#374151',
+      lineHeight: 1.6,
+      marginBottom: 8,
+    },
+    techStack: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 6,
+      marginTop: 6,
+    },
+    techTag: {
+      backgroundColor: `${accentColor}20`,
+      color: accentColor,
+      fontSize: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 10,
+      fontWeight: 'bold',
+    },
+    experienceGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 15,
+      marginBottom: 20,
+    },
+    experienceCard: {
+      width: '48%',
+      padding: 12,
+      backgroundColor: '#ffffff',
+      border: '1px solid #e5e7eb',
+      borderRadius: 6,
+    },
+    skillsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      justifyContent: 'center',
+      marginTop: 10,
+    },
+    skillBadge: {
+      backgroundColor: accentColor,
+      color: '#ffffff',
+      fontSize: fontSize,
+      paddingHorizontal: 14,
+      paddingVertical: 6,
+      borderRadius: 15,
+      fontWeight: 'bold',
+    },
+  })
+}
+
+// Portfolio Template Component
+export function PortfolioTemplate({ resumeData }) {
+  const { personalInfo, summary, experience, education, skills, projects = [], certifications = [], languages = [], volunteer = [], awards = [], sectionVisibility = {}, customization = {} } = resumeData
+  const styles = createPortfolioStyles(customization)
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          {personalInfo.photo && (
+            <Image src={personalInfo.photo} style={styles.photo} />
+          )}
+          <Text style={styles.name}>{personalInfo.fullName}</Text>
+          {summary && (
+            <Text style={styles.tagline}>
+              {summary.length > 150 ? summary.substring(0, 150) + '...' : summary}
+            </Text>
+          )}
+          <View style={styles.contactRow}>
+            {personalInfo.email && <Text style={styles.contactItem}>{personalInfo.email}</Text>}
+            {personalInfo.phone && <Text style={styles.contactItem}>{personalInfo.phone}</Text>}
+            {personalInfo.location && <Text style={styles.contactItem}>{personalInfo.location}</Text>}
+          </View>
+          <View style={styles.contactRow}>
+            {personalInfo.linkedin && <Text style={styles.contactItem}>{personalInfo.linkedin}</Text>}
+            {personalInfo.website && <Text style={styles.contactItem}>{personalInfo.website}</Text>}
+          </View>
+        </View>
+
+        {/* Content */}
+        <View style={styles.content}>
+          {/* Featured Projects */}
+          {projects.length > 0 && sectionVisibility.projects !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Featured Projects</Text>
+              {projects.map((proj) => (
+                <View key={proj.id} style={styles.projectCard} wrap={false}>
+                  <Text style={styles.projectTitle}>{proj.name}</Text>
+                  {proj.description && (
+                    <Text style={styles.projectDescription}>{proj.description}</Text>
+                  )}
+                  {proj.link && (
+                    <Text style={{ fontSize: 9, color: '#2563eb', marginBottom: 6 }}>
+                      {proj.link}
+                    </Text>
+                  )}
+                  {proj.technologies.length > 0 && (
+                    <View style={styles.techStack}>
+                      {proj.technologies.map((tech, i) => (
+                        <Text key={i} style={styles.techTag}>{tech}</Text>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Experience */}
+          {experience.length > 0 && sectionVisibility.experience !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Experience</Text>
+              <View style={styles.experienceGrid}>
+                {experience.map((exp) => (
+                  <View key={exp.id} style={styles.experienceCard} wrap={false}>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#111827', marginBottom: 3 }}>
+                      {exp.title}
+                    </Text>
+                    <Text style={{ fontSize: 10, color: '#6b7280', marginBottom: 2 }}>
+                      {exp.company}
+                    </Text>
+                    <Text style={{ fontSize: 9, color: '#9ca3af' }}>
+                      {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Skills */}
+          {skills.length > 0 && sectionVisibility.skills !== false && (
+            <View wrap={false}>
+              <Text style={styles.sectionTitle}>Skills & Expertise</Text>
+              <View style={styles.skillsGrid}>
+                {skills.map((skill, i) => (
+                  <Text key={i} style={styles.skillBadge}>{skill}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Education */}
+          {education.length > 0 && sectionVisibility.education !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Education</Text>
+              {education.map((edu) => (
+                <View key={edu.id} style={{ marginBottom: 12, textAlign: 'center' }} wrap={false}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#111827' }}>
+                    {edu.degree}
+                  </Text>
+                  <Text style={{ fontSize: 10, color: '#374151' }}>
+                    {edu.school} • {edu.graduationDate}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Awards */}
+          {awards.length > 0 && sectionVisibility.awards !== false && (
+            <View>
+              <Text style={styles.sectionTitle}>Recognition</Text>
+              {awards.map((award) => (
+                <View key={award.id} style={{ marginBottom: 10, textAlign: 'center' }} wrap={false}>
+                  <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#111827' }}>
+                    {award.title}
+                  </Text>
+                  <Text style={{ fontSize: 9, color: '#6b7280' }}>
+                    {award.issuer} • {award.date}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </Page>
+    </Document>
+  )
+}
