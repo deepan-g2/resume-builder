@@ -299,6 +299,57 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
         {/* Colors & Style Tab */}
         {activeTab === 'colors' && (
           <div className="space-y-6">
+            {/* Accent Color */}
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-gray-200">
+              <label className="block text-sm font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                <Palette className="w-4 h-4" />
+                <span>Accent Color</span>
+              </label>
+              <div className="flex items-center space-x-4 mb-4">
+                <input
+                  type="color"
+                  value={resumeData.customization?.accentColor || "#2563eb"}
+                  onChange={(e) => updateCustomization('accentColor', e.target.value)}
+                  className="w-20 h-20 rounded-lg border-2 border-gray-300 cursor-pointer"
+                />
+                <div className="flex-1">
+                  <div className="font-mono text-sm text-gray-700 bg-white px-3 py-2 rounded border border-gray-300">
+                    {resumeData.customization?.accentColor || "#2563eb"}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Used for headings, links, and highlights</div>
+                </div>
+              </div>
+
+              {/* Preset Colors */}
+              <div>
+                <div className="text-xs font-medium text-gray-700 mb-2">Quick Colors:</div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { name: 'Blue', color: '#2563eb' },
+                    { name: 'Red', color: '#dc2626' },
+                    { name: 'Green', color: '#059669' },
+                    { name: 'Purple', color: '#7c3aed' },
+                    { name: 'Orange', color: '#ea580c' },
+                    { name: 'Teal', color: '#0d9488' },
+                    { name: 'Pink', color: '#db2777' },
+                    { name: 'Indigo', color: '#4f46e5' },
+                  ].map(({ name, color }) => (
+                    <button
+                      key={color}
+                      onClick={() => updateCustomization('accentColor', color)}
+                      className={`w-12 h-12 rounded-lg border-2 hover:scale-110 transition-transform ${
+                        (resumeData.customization?.accentColor || "#2563eb") === color
+                          ? 'border-gray-900 ring-2 ring-offset-2 ring-gray-900'
+                          : 'border-gray-300'
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={name}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* Page Border Toggle */}
             <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg p-5 border border-gray-200">
               <label className="flex items-center space-x-3 cursor-pointer">
