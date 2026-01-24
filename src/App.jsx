@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { Download, Save, FileText, Mail, Upload, Copy, Target, Palette, ChevronDown, Eye } from 'lucide-react'
-import { PDFDownloadLink } from '@react-pdf/renderer'
+import { Download, Save, FileText, Mail, Upload, Copy, Target, Palette, ChevronDown, ChevronUp, Eye } from 'lucide-react'
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
+import Editor from './components/Editor'
+import CoverLetterEditor from './components/CoverLetterEditor'
 import ImportExportModal from './components/ImportExportModal'
-import ResumePage from './pages/ResumePage'
-import CoverLetterPage from './pages/CoverLetterPage'
-import ATSDetailsPage from './pages/ATSDetailsPage'
+import ATSScore from './components/ATSScore'
+import CustomizationEditor from './components/CustomizationEditor'
 import { ModernTemplate, ClassicTemplate, MinimalTemplate, ExecutiveTemplate, CreativeTemplate, TechnicalTemplate, AcademicTemplate, InternationalTemplate, PortfolioTemplate } from './components/PDFTemplates'
 import { ModernCoverLetterTemplate, ClassicCoverLetterTemplate, MinimalCoverLetterTemplate, ExecutiveCoverLetterTemplate, CreativeCoverLetterTemplate, TechnicalCoverLetterTemplate, AcademicCoverLetterTemplate, InternationalCoverLetterTemplate, PortfolioCoverLetterTemplate } from './components/CoverLetterTemplates'
 import { initialResumeData } from './data/resumeData'
@@ -14,10 +14,8 @@ import { duplicateResume, saveResume } from './utils/resumeManager'
 import { analyzeResume, getScoreColor, getScoreBgColor } from './utils/atsAnalyzer'
 import { useNotification } from './context/NotificationContext'
 
-function AppContent() {
+function App() {
   const { showSuccess, showError, showConfirm } = useNotification()
-  const navigate = useNavigate()
-  const location = useLocation()
   const [resumeData, setResumeData] = useState(() => {
     const saved = localStorage.getItem('resumeData')
     if (saved) {
@@ -75,13 +73,11 @@ function AppContent() {
 
   const [template, setTemplate] = useState('modern')
   const [showEditor, setShowEditor] = useState(true)
+  const [activeTab, setActiveTab] = useState('resume') // 'resume', 'ats', or 'coverLetter'
   const [showImportExport, setShowImportExport] = useState(false)
   const [atsScore, setAtsScore] = useState(null)
   const [showColorPicker, setShowColorPicker] = useState(false)
-
-  // Determine active tab based on route
-  const activeTab = location.pathname === '/cover-letter' ? 'coverLetter' : 'resume'
-  const isATSPage = location.pathname === '/ats-details'
+  const [showCustomization, setShowCustomization] = useState(false)
 
   const [coverLetterData, setCoverLetterData] = useState(() => {
     const saved = localStorage.getItem('coverLetterData')
@@ -240,57 +236,77 @@ function AppContent() {
                 <h1 className="text-xl font-bold text-gray-900">Resume Builder</h1>
               </div>
 
-              {/* Tab Navigation - Only show on main pages */}
-              {!isATSPage && (
-                <nav className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-                  <button
-                    onClick={() => navigate('/')}
-                    className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                      activeTab === 'resume'
-                        ? 'bg-white text-blue-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>Resume</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/cover-letter')}
-                    className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                      activeTab === 'coverLetter'
-                        ? 'bg-white text-blue-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span>Cover Letter</span>
-                  </button>
-                </nav>
-              )}
-
+              {/* Tab Navigation */}
+              <nav className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+                <button
+                  onClick={() => setActiveTab('resume')}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'resume'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Resume</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('ats')}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'ats'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Target className="w-4 h-4" />
+                  <span>ATS Analysis</span>
+                  {atsScore !== null && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                      atsScore >= 80 ? 'bg-green-100 text-green-700' :
+                      atsScore >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {atsScore}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab('coverLetter')}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'coverLetter'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Cover Letter</span>
+                </button>
+              </nav>
             </div>
 
             {/* Right Section: Actions */}
             <div className="flex items-center gap-2">
-              {/* Template Selector */}
-              <select
-                value={template}
-                onChange={(e) => setTemplate(e.target.value)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              >
-                <option value="modern">Modern</option>
-                <option value="classic">Classic</option>
-                <option value="minimal">Minimal</option>
-                <option value="executive">Executive</option>
-                <option value="creative">Creative</option>
-                <option value="technical">Technical</option>
-                <option value="academic">Academic CV</option>
-                <option value="international">International (Europass)</option>
-                <option value="portfolio">Portfolio</option>
-              </select>
+              {/* Template Selector - Hide on ATS tab */}
+              {activeTab !== 'ats' && (
+                <select
+                  value={template}
+                  onChange={(e) => setTemplate(e.target.value)}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="modern">Modern</option>
+                  <option value="classic">Classic</option>
+                  <option value="minimal">Minimal</option>
+                  <option value="executive">Executive</option>
+                  <option value="creative">Creative</option>
+                  <option value="technical">Technical</option>
+                  <option value="academic">Academic CV</option>
+                  <option value="international">International (Europass)</option>
+                  <option value="portfolio">Portfolio</option>
+                </select>
+              )}
 
-              {/* Color Picker Dropdown */}
-              <div className="relative color-picker-container">
+              {/* Color Picker Dropdown - Hide on ATS tab */}
+              {activeTab !== 'ats' && (
+                <div className="relative color-picker-container">
                 <button
                   onClick={() => setShowColorPicker(!showColorPicker)}
                   className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -355,10 +371,11 @@ function AppContent() {
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
+              )}
 
-              {/* Separator */}
-              <div className="h-8 w-px bg-gray-300" />
+              {/* Separator - Hide on ATS tab */}
+              {activeTab !== 'ats' && <div className="h-8 w-px bg-gray-300" />}
 
               {/* Resume-specific actions */}
               {activeTab === 'resume' && (
@@ -381,94 +398,142 @@ function AppContent() {
                 </>
               )}
 
-              {/* View Toggle */}
-              <button
-                onClick={() => setShowEditor(!showEditor)}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                title={showEditor ? 'Preview Only' : 'Show Editor'}
-              >
-                <Eye className="w-4 h-4" />
-              </button>
+              {/* View Toggle - Hide on ATS tab */}
+              {activeTab !== 'ats' && (
+                <button
+                  onClick={() => setShowEditor(!showEditor)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  title={showEditor ? 'Preview Only' : 'Show Editor'}
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+              )}
 
-              {/* Separator */}
-              <div className="h-8 w-px bg-gray-300" />
+              {/* Separator - Hide on ATS tab */}
+              {activeTab !== 'ats' && <div className="h-8 w-px bg-gray-300" />}
 
-              {/* Primary Actions */}
-              <button
-                onClick={handleSave}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-              >
-                <Save className="w-4 h-4" />
-                <span>Save</span>
-              </button>
+              {/* Primary Actions - Hide on ATS tab */}
+              {activeTab !== 'ats' && (
+                <>
+                  <button
+                    onClick={handleSave}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save</span>
+                  </button>
 
-              <PDFDownloadLink
-                document={activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
-                fileName={getFileName()}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm no-underline"
-              >
-                {({ loading }) => (
-                  <>
-                    <Download className="w-4 h-4" />
-                    <span>{loading ? 'Generating...' : 'Download PDF'}</span>
-                  </>
-                )}
-              </PDFDownloadLink>
+                  <PDFDownloadLink
+                    document={activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
+                    fileName={getFileName()}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm no-underline"
+                  >
+                    {({ loading }) => (
+                      <>
+                        <Download className="w-4 h-4" />
+                        <span>{loading ? 'Generating...' : 'Download PDF'}</span>
+                      </>
+                    )}
+                  </PDFDownloadLink>
 
-              {/* Reset Button */}
-              <button
-                onClick={handleReset}
-                className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Reset"
-              >
-                Reset
-              </button>
+                  {/* Reset Button */}
+                  <button
+                    onClick={handleReset}
+                    className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Reset"
+                  >
+                    Reset
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      {!isATSPage && (
-        <main className="max-w-full mx-auto p-6 overflow-x-hidden">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <ResumePage
-                  resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  atsScore={atsScore}
-                  getPDFComponent={getPDFComponent}
-                  showEditor={showEditor}
-                />
-              }
-            />
-            <Route
-              path="/cover-letter"
-              element={
-                <CoverLetterPage
-                  coverLetterData={coverLetterData}
-                  setCoverLetterData={setCoverLetterData}
-                  resumeData={resumeData}
-                  getCoverLetterPDFComponent={getCoverLetterPDFComponent}
-                  showEditor={showEditor}
-                />
-              }
-            />
-          </Routes>
-        </main>
-      )}
+      <main className="max-w-full mx-auto p-6 overflow-x-hidden">
+        {activeTab === 'ats' ? (
+          /* ATS Analysis Tab - Full Width */
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">ATS Compatibility Analysis</h2>
+                <p className="text-sm text-gray-600">
+                  ATS (Applicant Tracking System) compatibility measures how well your resume will be
+                  parsed and understood by automated recruitment systems. A higher score means better
+                  chances of your resume reaching human recruiters.
+                </p>
+              </div>
+              <ATSScore resumeData={resumeData} />
+            </div>
+          </div>
+        ) : (
+          /* Resume and Cover Letter Tabs - Split View */
+          <div className={`grid grid-cols-1 gap-6 ${showEditor ? 'lg:grid-cols-2' : ''}`}>
+            {/* Editor Panel */}
+            {showEditor && (
+              <div className="space-y-6">
+                {/* Customization Section - Only show on Resume tab */}
+                {activeTab === 'resume' && (
+                  <div className="bg-white rounded-lg shadow-lg">
+                    <button
+                      onClick={() => setShowCustomization(!showCustomization)}
+                      className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors rounded-lg"
+                    >
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900">Customization Studio</h2>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Customize fonts, colors, spacing, and layout
+                        </p>
+                      </div>
+                      {showCustomization ? (
+                        <ChevronUp className="w-5 h-5 text-gray-500" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-500" />
+                      )}
+                    </button>
 
-      {/* ATS Details Page */}
-      {isATSPage && (
-        <Routes>
-          <Route
-            path="/ats-details"
-            element={<ATSDetailsPage resumeData={resumeData} />}
-          />
-        </Routes>
-      )}
+                    {showCustomization && (
+                      <div className="px-6 pb-6 border-t border-gray-200">
+                        <CustomizationEditor
+                          resumeData={resumeData}
+                          setResumeData={setResumeData}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Main Editor */}
+                <div className="bg-white rounded-lg shadow-lg p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 140px)' }}>
+                  {activeTab === 'resume' ? (
+                    <Editor resumeData={resumeData} setResumeData={setResumeData} />
+                  ) : (
+                    <CoverLetterEditor
+                      coverLetterData={coverLetterData}
+                      setCoverLetterData={setCoverLetterData}
+                      resumeData={resumeData}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Preview Panel - PDF Viewer */}
+            <div className={`bg-white rounded-lg shadow-lg overflow-hidden ${showEditor ? '' : 'mx-auto w-full max-w-4xl'}`} style={{ height: 'calc(100vh - 140px)' }}>
+              <PDFViewer
+                width="100%"
+                height="100%"
+                showToolbar={false}
+                key={activeTab === 'resume' ? JSON.stringify(resumeData.customization?.sectionOrder || []) : JSON.stringify(coverLetterData)}
+              >
+                {activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
+              </PDFViewer>
+            </div>
+          </div>
+        )}
+      </main>
 
       {/* Import/Export Modal - Only for Resume */}
       {activeTab === 'resume' && (
@@ -481,14 +546,6 @@ function AppContent() {
         />
       )}
     </div>
-  )
-}
-
-function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
   )
 }
 

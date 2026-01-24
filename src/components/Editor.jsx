@@ -492,6 +492,8 @@ export default function Editor({ resumeData, setResumeData }) {
 
   return (
     <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-900">Edit Resume</h2>
+
       {/* Section Order Control */}
       <section className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
         <SectionHeader title="Section Order (Drag to Reorder)" section="sectionOrder" />
