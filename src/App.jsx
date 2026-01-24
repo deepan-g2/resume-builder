@@ -473,7 +473,7 @@ function App() {
           <div className={`grid grid-cols-1 gap-6 ${showEditor ? 'lg:grid-cols-2' : ''}`}>
             {/* Editor Panel */}
             {showEditor && (
-              <div className="space-y-6">
+              <div className="space-y-6 pt-6">
                 {/* Customization Section - Only show on Resume tab */}
                 {activeTab === 'resume' && (
                   <div className="bg-white rounded-lg shadow-lg">
