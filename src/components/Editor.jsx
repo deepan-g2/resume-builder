@@ -17,6 +17,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import ATSScore from './ATSScore'
+import CustomizationEditor from './CustomizationEditor'
 
 // Sortable Item Component for Section Reordering
 function SortableItem({ id, children, label }) {
@@ -47,7 +48,6 @@ function SortableItem({ id, children, label }) {
 
 export default function Editor({ resumeData, setResumeData }) {
   const [collapsedSections, setCollapsedSections] = useState({
-    customization: false,
     sectionOrder: false,
     personalInfo: false,
     summary: false,
@@ -499,164 +499,8 @@ export default function Editor({ resumeData, setResumeData }) {
       {/* ATS Compatibility Score */}
       <ATSScore resumeData={resumeData} />
 
-      {/* Customization Controls */}
-      <section className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
-        <SectionHeader title="Customization" section="customization" />
-        {!collapsedSections.customization && (
-        <div className="space-y-4">
-          {/* Font Family */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Font Family</label>
-            <select
-              value={resumeData.customization?.fontFamily || "Helvetica"}
-              onChange={(e) => updateCustomization('fontFamily', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Helvetica">Helvetica (Modern, Clean)</option>
-              <option value="Times-Roman">Times New Roman (Classic, Formal)</option>
-              <option value="Courier">Courier (Technical, Monospace)</option>
-            </select>
-          </div>
-
-          {/* Font Size & Weight */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Font Size: {resumeData.customization?.fontSize || 11}pt
-              </label>
-              <input
-                type="range"
-                min="9"
-                max="14"
-                step="0.5"
-                value={resumeData.customization?.fontSize || 11}
-                onChange={(e) => updateCustomization('fontSize', parseFloat(e.target.value))}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>9pt</span>
-                <span>14pt</span>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Body Text Weight</label>
-              <select
-                value={resumeData.customization?.fontWeight || "normal"}
-                onChange={(e) => updateCustomization('fontWeight', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="normal">Normal</option>
-                <option value="bold">Bold</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Line Spacing */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Line Spacing: {resumeData.customization?.lineSpacing || 1.5}
-            </label>
-            <input
-              type="range"
-              min="1.0"
-              max="2.0"
-              step="0.1"
-              value={resumeData.customization?.lineSpacing || 1.5}
-              onChange={(e) => updateCustomization('lineSpacing', parseFloat(e.target.value))}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>1.0 (Compact)</span>
-              <span>1.5 (Default)</span>
-              <span>2.0 (Spacious)</span>
-            </div>
-          </div>
-
-          {/* Paragraph Spacing */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Section Spacing: {resumeData.customization?.paragraphSpacing || 12}px
-            </label>
-            <input
-              type="range"
-              min="8"
-              max="24"
-              step="2"
-              value={resumeData.customization?.paragraphSpacing || 12}
-              onChange={(e) => updateCustomization('paragraphSpacing', parseFloat(e.target.value))}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>8px (Tight)</span>
-              <span>12px (Default)</span>
-              <span>24px (Loose)</span>
-            </div>
-          </div>
-
-          {/* Page Margins */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Page Margins: {resumeData.customization?.pageMargin || 40}px
-            </label>
-            <input
-              type="range"
-              min="20"
-              max="60"
-              step="5"
-              value={resumeData.customization?.pageMargin || 40}
-              onChange={(e) => updateCustomization('pageMargin', parseFloat(e.target.value))}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>20px (More content)</span>
-              <span>40px (Default)</span>
-              <span>60px (More space)</span>
-            </div>
-          </div>
-
-          {/* Page Border */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={resumeData.customization?.showPageBorder || false}
-                  onChange={(e) => updateCustomization('showPageBorder', e.target.checked)}
-                  className="w-4 h-4 text-blue-600"
-                />
-                <span className="text-sm font-medium text-gray-700">Show Page Border</span>
-              </label>
-            </div>
-
-            {resumeData.customization?.showPageBorder && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Border Width: {resumeData.customization?.borderWidth || 2}px</label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="4"
-                    step="1"
-                    value={resumeData.customization?.borderWidth || 2}
-                    onChange={(e) => updateCustomization('borderWidth', parseFloat(e.target.value))}
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Border Color</label>
-                  <input
-                    type="color"
-                    value={resumeData.customization?.borderColor || "#e5e7eb"}
-                    onChange={(e) => updateCustomization('borderColor', e.target.value)}
-                    className="w-full h-10 border-0 rounded cursor-pointer"
-                  />
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-        )}
-      </section>
+      {/* Customization Studio */}
+      <CustomizationEditor resumeData={resumeData} setResumeData={setResumeData} />
 
       {/* Section Order Control */}
       <section className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
