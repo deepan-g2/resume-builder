@@ -434,7 +434,7 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-full mx-auto p-6">
+      <main className="max-w-full mx-auto p-6 overflow-x-hidden">
         <div className={`grid grid-cols-1 gap-6 ${showEditor ? 'lg:grid-cols-2' : ''}`}>
           {/* Editor Panel */}
           {showEditor && (
