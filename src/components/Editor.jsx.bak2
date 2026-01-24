@@ -1159,6 +1159,553 @@ export default function Editor({ resumeData, setResumeData }) {
                 {renderSectionContent(sectionKey)}
               </SortableItem>
             ))}
+        {!collapsedSections.summary && (
+        <textarea
+          placeholder="Write a brief summary about yourself..."
+          value={resumeData.summary}
+          onChange={(e) => updateSummary(e.target.value)}
+          rows={4}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        )}
+              </section>
+            </SortableItem>
+
+            <SortableItem id="experience">
+              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Work Experience"
+          section="experience"
+          hasVisibilityToggle={true}
+          onAdd={addExperience}
+        />
+        {!collapsedSections.experience && (
+        <div className="space-y-6">
+          {resumeData.experience.map((exp, expIndex) => (
+            <div key={exp.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex justify-between items-start">
+                <h4 className="font-medium text-gray-700">Experience {expIndex + 1}</h4>
+                <button
+                  onClick={() => removeExperience(exp.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Job Title"
+                value={exp.title}
+                onChange={(e) => updateExperience(exp.id, 'title', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Company"
+                value={exp.company}
+                onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Location"
+                value={exp.location}
+                onChange={(e) => updateExperience(exp.id, 'location', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Start Date"
+                  value={exp.startDate}
+                  onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="End Date"
+                  value={exp.endDate}
+                  onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
+                  disabled={exp.current}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                />
+              </div>
+
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={exp.current}
+                  onChange={(e) => updateExperience(exp.id, 'current', e.target.checked)}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span className="text-sm text-gray-700">Currently working here</span>
+              </label>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Responsibilities:</label>
+                {exp.description.map((desc, index) => (
+                  <div key={index} className="flex space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Add a responsibility..."
+                      value={desc}
+                      onChange={(e) => updateExperienceDescription(exp.id, index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                    {exp.description.length > 1 && (
+                      <button
+                        onClick={() => removeExperienceDescription(exp.id, index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  onClick={() => addExperienceDescription(exp.id)}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  + Add responsibility
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        )}
+              </section>
+            </SortableItem>
+
+            <SortableItem id="education">
+              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Education"
+          section="education"
+          hasVisibilityToggle={true}
+          onAdd={addEducation}
+        />
+        {!collapsedSections.education && (
+        <div className="space-y-4">
+          {resumeData.education.map((edu, eduIndex) => (
+            <div key={edu.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex justify-between items-start">
+                <h4 className="font-medium text-gray-700">Education {eduIndex + 1}</h4>
+                <button
+                  onClick={() => removeEducation(edu.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Degree"
+                value={edu.degree}
+                onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="School Name"
+                value={edu.school}
+                onChange={(e) => updateEducation(edu.id, 'school', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Location"
+                value={edu.location}
+                onChange={(e) => updateEducation(edu.id, 'location', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Graduation Date"
+                  value={edu.graduationDate}
+                  onChange={(e) => updateEducation(edu.id, 'graduationDate', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="GPA (optional)"
+                  value={edu.gpa}
+                  onChange={(e) => updateEducation(edu.id, 'gpa', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        )}
+              </section>
+            </SortableItem>
+
+            <SortableItem id="skills">
+              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader title="Skills" section="skills" hasVisibilityToggle={true} />
+        {!collapsedSections.skills && (
+        <>
+          <textarea
+            placeholder="Enter skills separated by commas (e.g., JavaScript, React, Node.js)"
+            value={resumeData.skills.join(', ')}
+            onChange={(e) => updateSkills(e.target.value)}
+            rows={3}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <p className="mt-2 text-sm text-gray-500">Separate skills with commas</p>
+        </>
+        )}
+              </section>
+            </SortableItem>
+
+            <SortableItem id="projects">
+              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Projects"
+          section="projects"
+          hasVisibilityToggle={true}
+          onAdd={addProject}
+        />
+        {!collapsedSections.projects && (
+        <div className="space-y-4">
+          {resumeData.projects.map((proj, index) => (
+            <div key={proj.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex justify-between items-start">
+                <h4 className="font-medium text-gray-700">Project {index + 1}</h4>
+                <button
+                  onClick={() => removeProject(proj.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Project Name"
+                value={proj.name}
+                onChange={(e) => updateProject(proj.id, 'name', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <textarea
+                placeholder="Project Description"
+                value={proj.description}
+                onChange={(e) => updateProject(proj.id, 'description', e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Technologies (comma-separated)"
+                value={proj.technologies.join(', ')}
+                onChange={(e) => updateProjectTechnologies(proj.id, e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Link (GitHub, Live Demo)"
+                  value={proj.link}
+                  onChange={(e) => updateProject(proj.id, 'link', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Date/Year"
+                  value={proj.date}
+                  onChange={(e) => updateProject(proj.id, 'date', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        )}
+              </section>
+            </SortableItem>
+
+            <SortableItem id="certifications">
+              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Certifications"
+          section="certifications"
+          hasVisibilityToggle={true}
+          onAdd={addCertification}
+        />
+        {!collapsedSections.certifications && (
+        <div className="space-y-4">
+          {resumeData.certifications.map((cert, index) => (
+            <div key={cert.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex justify-between items-start">
+                <h4 className="font-medium text-gray-700">Certification {index + 1}</h4>
+                <button
+                  onClick={() => removeCertification(cert.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Certification Name"
+                value={cert.name}
+                onChange={(e) => updateCertification(cert.id, 'name', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Issuer (e.g., AWS, Google)"
+                value={cert.issuer}
+                onChange={(e) => updateCertification(cert.id, 'issuer', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Issue Date"
+                  value={cert.date}
+                  onChange={(e) => updateCertification(cert.id, 'date', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Expiry Date (optional)"
+                  value={cert.expiryDate}
+                  onChange={(e) => updateCertification(cert.id, 'expiryDate', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <input
+                type="text"
+                placeholder="Credential ID (optional)"
+                value={cert.credentialId}
+                onChange={(e) => updateCertification(cert.id, 'credentialId', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          ))}
+        </div>
+        )}
+              </section>
+            </SortableItem>
+
+            <SortableItem id="languages">
+              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Languages"
+          section="languages"
+          hasVisibilityToggle={true}
+          onAdd={addLanguage}
+        />
+        {!collapsedSections.languages && (
+        <div className="space-y-4">
+          {resumeData.languages.map((lang, index) => (
+            <div key={lang.id} className="p-4 border border-gray-200 rounded-lg">
+              <div className="flex justify-between items-start mb-3">
+                <h4 className="font-medium text-gray-700">Language {index + 1}</h4>
+                <button
+                  onClick={() => removeLanguage(lang.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Language"
+                  value={lang.language}
+                  onChange={(e) => updateLanguage(lang.id, 'language', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <select
+                  value={lang.proficiency}
+                  onChange={(e) => updateLanguage(lang.id, 'proficiency', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Native">Native</option>
+                  <option value="Fluent">Fluent</option>
+                  <option value="Professional">Professional</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Basic">Basic</option>
+                </select>
+              </div>
+            </div>
+          ))}
+        </div>
+        )}
+              </section>
+            </SortableItem>
+
+            <SortableItem id="volunteer">
+              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Volunteer Experience"
+          section="volunteer"
+          hasVisibilityToggle={true}
+          onAdd={addVolunteer}
+        />
+        {!collapsedSections.volunteer && (
+        <div className="space-y-6">
+          {resumeData.volunteer.map((vol, volIndex) => (
+            <div key={vol.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex justify-between items-start">
+                <h4 className="font-medium text-gray-700">Volunteer {volIndex + 1}</h4>
+                <button
+                  onClick={() => removeVolunteer(vol.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Role/Position"
+                value={vol.role}
+                onChange={(e) => updateVolunteer(vol.id, 'role', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Organization"
+                value={vol.organization}
+                onChange={(e) => updateVolunteer(vol.id, 'organization', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Location"
+                value={vol.location}
+                onChange={(e) => updateVolunteer(vol.id, 'location', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Start Date"
+                  value={vol.startDate}
+                  onChange={(e) => updateVolunteer(vol.id, 'startDate', e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="End Date"
+                  value={vol.endDate}
+                  onChange={(e) => updateVolunteer(vol.id, 'endDate', e.target.value)}
+                  disabled={vol.current}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                />
+              </div>
+
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={vol.current}
+                  onChange={(e) => updateVolunteer(vol.id, 'current', e.target.checked)}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span className="text-sm text-gray-700">Currently volunteering here</span>
+              </label>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Contributions:</label>
+                {vol.description.map((desc, index) => (
+                  <div key={index} className="flex space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Add a contribution..."
+                      value={desc}
+                      onChange={(e) => updateVolunteerDescription(vol.id, index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                    {vol.description.length > 1 && (
+                      <button
+                        onClick={() => removeVolunteerDescription(vol.id, index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  onClick={() => addVolunteerDescription(vol.id)}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  + Add contribution
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        )}
+              </section>
+            </SortableItem>
+
+            <SortableItem id="awards">
+              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader
+          title="Awards & Honors"
+          section="awards"
+          hasVisibilityToggle={true}
+          onAdd={addAward}
+        />
+        {!collapsedSections.awards && (
+        <div className="space-y-4">
+          {resumeData.awards.map((award, index) => (
+            <div key={award.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex justify-between items-start">
+                <h4 className="font-medium text-gray-700">Award {index + 1}</h4>
+                <button
+                  onClick={() => removeAward(award.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Award Title"
+                value={award.title}
+                onChange={(e) => updateAward(award.id, 'title', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Issuer/Organization"
+                value={award.issuer}
+                onChange={(e) => updateAward(award.id, 'issuer', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Date"
+                value={award.date}
+                onChange={(e) => updateAward(award.id, 'date', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+              <textarea
+                placeholder="Description (optional)"
+                value={award.description}
+                onChange={(e) => updateAward(award.id, 'description', e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          ))}
+        </div>
+        )}
+              </section>
+            </SortableItem>
           </div>
         </SortableContext>
       </DndContext>
