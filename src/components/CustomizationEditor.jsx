@@ -64,7 +64,7 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
           </div>
         </button>
       ) : (
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl"
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
           {/* Expanded Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
             <div className="flex items-center justify-between">
