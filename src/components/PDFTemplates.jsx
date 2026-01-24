@@ -177,6 +177,7 @@ const createModernStyles = (customization = {}) => {
 export function ModernTemplate({ resumeData }) {
   const { personalInfo, summary, experience, education, skills, projects = [], certifications = [], languages = [], volunteer = [], awards = [], sectionVisibility = {}, customization = {} } = resumeData
   const modernStyles = createModernStyles(customization)
+  const fontSize = customization.fontSize || 11
 
   // Section components
   const sections = {
@@ -562,6 +563,7 @@ const createClassicStyles = (customization = {}) => {
 export function ClassicTemplate({ resumeData }) {
   const { personalInfo, summary, experience, education, skills, projects = [], certifications = [], languages = [], volunteer = [], awards = [], sectionVisibility = {}, customization = {} } = resumeData
   const classicStyles = createClassicStyles(customization)
+  const fontSize = customization.fontSize || 11
 
   // Section components
   const sections = {
