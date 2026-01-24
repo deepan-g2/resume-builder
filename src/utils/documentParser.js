@@ -42,21 +42,40 @@ export const parsePDF = async (file) => {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
 
-      // Group text items by Y position (lines)
+      // Group text items by Y position (lines) and X position (to detect spacing)
       const lineMap = new Map();
 
       for (const item of textContent.items) {
         const y = Math.round(item.transform[5]); // Y coordinate
+        const x = item.transform[4]; // X coordinate
         if (!lineMap.has(y)) {
           lineMap.set(y, []);
         }
-        lineMap.get(y).push(item.str);
+        lineMap.get(y).push({ str: item.str, x: x });
       }
 
-      // Sort by Y coordinate (top to bottom) and join
+      // Sort by Y coordinate (top to bottom)
       const sortedLines = Array.from(lineMap.entries())
         .sort((a, b) => b[0] - a[0]) // Sort descending (top to bottom)
-        .map(([y, texts]) => texts.join(' '));
+        .map(([y, items]) => {
+          // Sort items on this line by X position (left to right)
+          items.sort((a, b) => a.x - b.x);
+
+          // Join text items, detecting gaps
+          let lineText = '';
+          let prevX = null;
+
+          for (const item of items) {
+            // If there's a significant gap, add a space marker
+            if (prevX !== null && item.x - prevX > 10) {
+              lineText += '  '; // Double space for word boundary
+            }
+            lineText += item.str + ' '; // Single space after each item
+            prevX = item.x + (item.str.length * 5); // Approximate width
+          }
+
+          return lineText.trim();
+        });
 
       fullText += sortedLines.join('\n') + '\n';
     }
@@ -101,48 +120,30 @@ const fixSpacedText = (text) => {
   if (singleCharTokens.length > tokens.length * 0.4) {
     console.log('Detected spaced-out text (single char ratio:', (singleCharTokens.length / tokens.length).toFixed(2), '), fixing...');
 
-    // Strategy: Split by spaces, then merge single characters until we hit a multi-char word or punctuation
-    const allTokens = text.split(/\s+/);
-    const fixed = [];
-    let buffer = '';
+    // Strategy: Look for sequences of "char space char space..." with double/triple spaces as word boundaries
+    // Split by newlines first to preserve line structure
+    const lines = text.split('\n');
+    const fixedLines = lines.map(line => {
+      // Use a more sophisticated approach: track consecutive spaces
+      // Single space = part of same word (spaced chars)
+      // Double+ space or newline = word boundary
 
-    for (let i = 0; i < allTokens.length; i++) {
-      const token = allTokens[i];
+      // First, replace multiple spaces with a special marker
+      const marked = line.replace(/\s{2,}/g, '|||WORDBREAK|||');
 
-      if (token.length === 1 && /[a-zA-Z]/.test(token)) {
-        // Single letter - add to buffer
-        buffer += token;
-      } else if (token.length === 1 && /[.,;:!?@()-]/.test(token)) {
-        // Punctuation - add to previous word
-        if (buffer) {
-          fixed.push(buffer);
-          buffer = '';
-        }
-        // Attach punctuation to last word if possible
-        if (fixed.length > 0 && /[.,;:!?]/.test(token)) {
-          fixed[fixed.length - 1] += token;
-        } else {
-          fixed.push(token);
-        }
-      } else {
-        // Multi-character token or number - flush buffer and add token
-        if (buffer) {
-          fixed.push(buffer);
-          buffer = '';
-        }
-        if (token) {
-          fixed.push(token);
-        }
-      }
-    }
+      // Split by marker to get words
+      const words = marked.split('|||WORDBREAK|||');
 
-    // Flush remaining buffer
-    if (buffer) {
-      fixed.push(buffer);
-    }
+      // Fix each word by removing single spaces
+      const fixedWords = words.map(word => {
+        // Remove all single spaces between single characters
+        return word.replace(/\s+/g, '');
+      }).filter(w => w.length > 0);
 
-    // Join with single spaces
-    text = fixed.join(' ');
+      return fixedWords.join(' ');
+    });
+
+    text = fixedLines.join('\n');
 
     console.log('Fixed text preview:', text.substring(0, 300));
   }
