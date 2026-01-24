@@ -250,17 +250,17 @@ export function ModernTemplate({ resumeData }) {
               {proj.date && <Text style={modernStyles.dateText}>{proj.date}</Text>}
             </View>
             {proj.description && (
-              <Text style={modernStyles.summaryText}>{proj.description}</Text>
+              <Text style={[modernStyles.summaryText, { marginBottom: 6 }]}>{proj.description}</Text>
             )}
             {proj.technologies.length > 0 && (
-              <View style={modernStyles.skillsContainer}>
+              <View style={[modernStyles.skillsContainer, { marginBottom: 6 }]}>
                 {proj.technologies.map((tech, i) => (
                   <Text key={i} style={modernStyles.skillTag}>{tech}</Text>
                 ))}
               </View>
             )}
             {proj.link && (
-              <Text style={modernStyles.school}>Link: {proj.link}</Text>
+              <Text style={[modernStyles.school, { fontSize: fontSize * 0.85, color: '#2563eb' }]}>🔗 {proj.link}</Text>
             )}
           </View>
         ))}
@@ -632,13 +632,13 @@ export function ClassicTemplate({ resumeData }) {
               {proj.date && <Text style={classicStyles.dateLocation}>{proj.date}</Text>}
             </View>
             {proj.description && (
-              <Text style={classicStyles.school}>{proj.description}</Text>
+              <Text style={[classicStyles.school, { marginBottom: 4 }]}>{proj.description}</Text>
             )}
             {proj.technologies.length > 0 && (
-              <Text style={classicStyles.school}>Technologies: {proj.technologies.join(', ')}</Text>
+              <Text style={[classicStyles.school, { marginBottom: 4 }]}>Technologies: {proj.technologies.join(', ')}</Text>
             )}
             {proj.link && (
-              <Text style={classicStyles.school}>Link: {proj.link}</Text>
+              <Text style={[classicStyles.school, { fontSize: fontSize * 0.9, color: '#2563eb' }]}>🔗 {proj.link}</Text>
             )}
           </View>
         ))}
@@ -945,13 +945,13 @@ export function MinimalTemplate({ resumeData }) {
               {proj.date && <Text style={minimalStyles.dateText}>{proj.date}</Text>}
             </View>
             {proj.description && (
-              <Text style={minimalStyles.school}>{proj.description}</Text>
+              <Text style={[minimalStyles.school, { marginBottom: 4 }]}>{proj.description}</Text>
             )}
             {proj.technologies.length > 0 && (
-              <Text style={minimalStyles.skills}>Tech: {proj.technologies.join(', ')}</Text>
+              <Text style={[minimalStyles.skills, { marginBottom: 4 }]}>Tech: {proj.technologies.join(', ')}</Text>
             )}
             {proj.link && (
-              <Text style={minimalStyles.school}>{proj.link}</Text>
+              <Text style={[minimalStyles.school, { fontSize: 9, color: '#2563eb' }]}>🔗 {proj.link}</Text>
             )}
           </View>
         ))}
@@ -1287,9 +1287,13 @@ export function ExecutiveTemplate({ resumeData }) {
               {projects.map((proj) => (
                 <View key={proj.id} style={styles.experienceItem} wrap={false}>
                   <Text style={styles.jobTitle}>{proj.name}</Text>
+                  {proj.date && <Text style={{ fontSize: 9, color: '#9ca3af', marginBottom: 4 }}>{proj.date}</Text>}
                   {proj.description && <Text style={{ fontSize: 10, color: '#374151', marginBottom: 4 }}>{proj.description}</Text>}
                   {proj.technologies.length > 0 && (
-                    <Text style={{ fontSize: 9, color: '#6b7280' }}>Tech: {proj.technologies.join(', ')}</Text>
+                    <Text style={{ fontSize: 9, color: '#6b7280', marginBottom: 4 }}>Tech: {proj.technologies.join(', ')}</Text>
+                  )}
+                  {proj.link && (
+                    <Text style={{ fontSize: 9, color: '#2563eb' }}>🔗 {proj.link}</Text>
                   )}
                 </View>
               ))}
@@ -1470,9 +1474,13 @@ export function CreativeTemplate({ resumeData }) {
               {projects.map((proj) => (
                 <View key={proj.id} style={styles.experienceItem} wrap={false}>
                   <Text style={styles.jobTitle}>{proj.name}</Text>
-                  {proj.description && <Text style={styles.bulletItem}>{proj.description}</Text>}
+                  {proj.date && <Text style={styles.dateText}>{proj.date}</Text>}
+                  {proj.description && <Text style={[styles.bulletItem, { marginBottom: 6 }]}>{proj.description}</Text>}
                   {proj.technologies.length > 0 && (
-                    <Text style={{ fontSize: 10, color: '#6b7280' }}>Tech: {proj.technologies.join(', ')}</Text>
+                    <Text style={{ fontSize: 10, color: '#6b7280', marginBottom: 4 }}>Tech: {proj.technologies.join(', ')}</Text>
+                  )}
+                  {proj.link && (
+                    <Text style={{ fontSize: 10, color: '#2563eb' }}>🔗 {proj.link}</Text>
                   )}
                 </View>
               ))}
@@ -1618,11 +1626,12 @@ export function TechnicalTemplate({ resumeData }) {
             {projects.map((proj) => (
               <View key={proj.id} style={styles.codeBlock} wrap={false}>
                 <Text style={styles.experienceTitle}>{proj.name}</Text>
+                {proj.date && <Text style={styles.experienceDate}>{proj.date}</Text>}
                 {proj.description && <Text style={{ fontSize: 9, color: '#374151', marginBottom: 4 }}>{proj.description}</Text>}
                 {proj.technologies.length > 0 && (
-                  <Text style={{ fontSize: 9, color: '#6b7280' }}>Tech Stack: {proj.technologies.join(', ')}</Text>
+                  <Text style={{ fontSize: 9, color: '#6b7280', marginBottom: 4 }}>Tech Stack: {proj.technologies.join(', ')}</Text>
                 )}
-                {proj.link && <Text style={{ fontSize: 9, color: '#2563eb' }}>{proj.link}</Text>}
+                {proj.link && <Text style={{ fontSize: 9, color: '#2563eb' }}>🔗 {proj.link}</Text>}
               </View>
             ))}
           </View>
@@ -1800,7 +1809,10 @@ export function AcademicTemplate({ resumeData }) {
                   <Text style={{ fontSize: 10, color: '#374151', marginBottom: 4 }}>{proj.description}</Text>
                 )}
                 {proj.technologies.length > 0 && (
-                  <Text style={{ fontSize: 9, color: '#6b7280' }}>Methods: {proj.technologies.join(', ')}</Text>
+                  <Text style={{ fontSize: 9, color: '#6b7280', marginBottom: 4 }}>Methods: {proj.technologies.join(', ')}</Text>
+                )}
+                {proj.link && (
+                  <Text style={{ fontSize: 9, color: '#2563eb' }}>🔗 {proj.link}</Text>
                 )}
               </View>
             ))}
@@ -2077,9 +2089,12 @@ export function InternationalTemplate({ resumeData }) {
                     </Text>
                   )}
                   {proj.technologies.length > 0 && (
-                    <Text style={{ fontSize: 9, color: '#6b7280' }}>
+                    <Text style={{ fontSize: 9, color: '#6b7280', marginBottom: 4 }}>
                       Technologies: {proj.technologies.join(', ')}
                     </Text>
+                  )}
+                  {proj.link && (
+                    <Text style={{ fontSize: 9, color: '#2563eb' }}>🔗 {proj.link}</Text>
                   )}
                 </View>
               ))}
@@ -2291,21 +2306,24 @@ export function PortfolioTemplate({ resumeData }) {
               <Text style={styles.sectionTitle}>Featured Projects</Text>
               {projects.map((proj) => (
                 <View key={proj.id} style={styles.projectCard} wrap={false}>
-                  <Text style={styles.projectTitle}>{proj.name}</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <Text style={styles.projectTitle}>{proj.name}</Text>
+                    {proj.date && <Text style={{ fontSize: 9, color: '#6b7280' }}>{proj.date}</Text>}
+                  </View>
                   {proj.description && (
                     <Text style={styles.projectDescription}>{proj.description}</Text>
                   )}
-                  {proj.link && (
-                    <Text style={{ fontSize: 9, color: '#2563eb', marginBottom: 6 }}>
-                      {proj.link}
-                    </Text>
-                  )}
                   {proj.technologies.length > 0 && (
-                    <View style={styles.techStack}>
+                    <View style={[styles.techStack, { marginBottom: 6 }]}>
                       {proj.technologies.map((tech, i) => (
                         <Text key={i} style={styles.techTag}>{tech}</Text>
                       ))}
                     </View>
+                  )}
+                  {proj.link && (
+                    <Text style={{ fontSize: 9, color: '#2563eb' }}>
+                      🔗 {proj.link}
+                    </Text>
                   )}
                 </View>
               ))}
