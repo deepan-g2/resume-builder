@@ -111,17 +111,3 @@
 .animate-scale-in {
   animation: scale-in 0.2s ease-out;
 }
-
-/* Fix for PDFViewer black sides - ensure white background throughout */
-.pdf-viewer-container {
-  background: white !important;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.pdf-viewer-container > * {
-  background: white !important;
-  flex: 1;
-  max-width: 100%;
-}

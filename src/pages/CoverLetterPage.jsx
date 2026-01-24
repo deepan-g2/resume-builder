@@ -1,4 +1,4 @@
-import CustomPDFViewer from '../components/CustomPDFViewer'
+import { PDFViewer } from '@react-pdf/renderer'
 import CoverLetterEditor from '../components/CoverLetterEditor'
 
 export default function CoverLetterPage({
@@ -21,15 +21,19 @@ export default function CoverLetterPage({
         </div>
       )}
 
-      {/* Preview Panel - Custom PDF Viewer */}
+      {/* Preview Panel - PDF Viewer */}
       <div
-        className={`pdf-viewer-container bg-white rounded-lg shadow-lg overflow-hidden ${showEditor ? '' : 'mx-auto w-full max-w-4xl'}`}
+        className={`bg-white rounded-lg shadow-lg overflow-hidden ${showEditor ? '' : 'mx-auto w-full max-w-4xl'}`}
         style={{ height: 'calc(100vh - 140px)' }}
       >
-        <CustomPDFViewer
-          document={getCoverLetterPDFComponent()}
+        <PDFViewer
+          width="100%"
+          height="100%"
+          showToolbar={false}
           key={JSON.stringify(coverLetterData)}
-        />
+        >
+          {getCoverLetterPDFComponent()}
+        </PDFViewer>
       </div>
     </div>
   )
