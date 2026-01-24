@@ -41,7 +41,7 @@ export default function ResumePage({
 
       {/* Preview Panel - PDF Viewer */}
       <div
-        className={`bg-white rounded-lg shadow-lg overflow-hidden ${showEditor ? '' : 'mx-auto w-full max-w-4xl'}`}
+        className={`pdf-viewer-container bg-white rounded-lg shadow-lg overflow-hidden ${showEditor ? '' : 'mx-auto w-full max-w-4xl'}`}
         style={{ height: 'calc(100vh - 140px)' }}
       >
         <PDFViewer
