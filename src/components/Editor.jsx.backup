@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 
 // Sortable Item Component for Section Reordering
-function SortableItem({ id, children }) {
+function SortableItem({ id, children, label }) {
   const {
     attributes,
     listeners,
@@ -35,17 +35,18 @@ function SortableItem({ id, children }) {
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group">
-      <div {...attributes} {...listeners} className="absolute -left-8 top-4 cursor-grab active:cursor-grabbing z-10 bg-white rounded p-1.5 border border-gray-300 shadow-sm hover:shadow-md transition-all opacity-60 group-hover:opacity-100">
+    <div ref={setNodeRef} style={style} className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg p-3">
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-shrink-0">
         <GripVertical className="w-5 h-5 text-gray-400 hover:text-gray-600" />
       </div>
-      {children}
+      <span className="text-sm font-medium text-gray-700 flex-1">{label}</span>
     </div>
   )
 }
 
 export default function Editor({ resumeData, setResumeData }) {
   const [collapsedSections, setCollapsedSections] = useState({
+    sectionOrder: false,
     personalInfo: false,
     summary: false,
     experience: false,
@@ -490,10 +491,47 @@ export default function Editor({ resumeData, setResumeData }) {
   )
 
   return (
-    <div className="space-y-6 pl-8">
-      <h2 className="text-2xl font-bold text-gray-900">Edit Resume</h2>
+    <div className="space-y-6">
+      {/* Section Order Control */}
+      <section className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
+        <SectionHeader title="Section Order (Drag to Reorder)" section="sectionOrder" />
+        {!collapsedSections.sectionOrder && (
+        <>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={resumeData.customization?.sectionOrder || ['summary', 'experience', 'projects', 'education', 'certifications', 'skills', 'languages', 'volunteer', 'awards']}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {(resumeData.customization?.sectionOrder || ['summary', 'experience', 'projects', 'education', 'certifications', 'skills', 'languages', 'volunteer', 'awards']).map((section) => {
+                const sectionNames = {
+                  summary: 'Professional Summary',
+                  experience: 'Work Experience',
+                  projects: 'Projects',
+                  education: 'Education',
+                  certifications: 'Certifications',
+                  skills: 'Skills',
+                  languages: 'Languages',
+                  volunteer: 'Volunteer Experience',
+                  awards: 'Awards & Honors'
+                }
+                return (
+                  <SortableItem key={section} id={section} label={sectionNames[section]} />
+                )
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
+        <p className="mt-3 text-xs text-gray-600">💡 Drag the grip handles to reorder sections</p>
+        </>
+        )}
+      </section>
 
-      {/* Personal Information - Not draggable */}
+      {/* Personal Information */}
       <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader title="Personal Information" section="personalInfo" />
         {!collapsedSections.personalInfo && (
@@ -582,20 +620,9 @@ export default function Editor({ resumeData, setResumeData }) {
         )}
       </section>
 
-      {/* Draggable Sections */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={resumeData.customization?.sectionOrder || ['summary', 'experience', 'projects', 'education', 'certifications', 'skills', 'languages', 'volunteer', 'awards']}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="space-y-6">
-            <SortableItem id="summary">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
-                <SectionHeader title="Professional Summary" section="summary" hasVisibilityToggle={true} />
+      {/* Professional Summary */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
+        <SectionHeader title="Professional Summary" section="summary" hasVisibilityToggle={true} />
         {!collapsedSections.summary && (
         <textarea
           placeholder="Write a brief summary about yourself..."
@@ -605,11 +632,10 @@ export default function Editor({ resumeData, setResumeData }) {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         )}
-              </section>
-            </SortableItem>
+      </section>
 
-            <SortableItem id="experience">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+      {/* Experience */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader
           title="Work Experience"
           section="experience"
@@ -712,11 +738,10 @@ export default function Editor({ resumeData, setResumeData }) {
           ))}
         </div>
         )}
-              </section>
-            </SortableItem>
+      </section>
 
-            <SortableItem id="education">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+      {/* Education */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader
           title="Education"
           section="education"
@@ -778,11 +803,10 @@ export default function Editor({ resumeData, setResumeData }) {
           ))}
         </div>
         )}
-              </section>
-            </SortableItem>
+      </section>
 
-            <SortableItem id="skills">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+      {/* Skills */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader title="Skills" section="skills" hasVisibilityToggle={true} />
         {!collapsedSections.skills && (
         <>
@@ -796,11 +820,10 @@ export default function Editor({ resumeData, setResumeData }) {
           <p className="mt-2 text-sm text-gray-500">Separate skills with commas</p>
         </>
         )}
-              </section>
-            </SortableItem>
+      </section>
 
-            <SortableItem id="projects">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+      {/* Projects */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader
           title="Projects"
           section="projects"
@@ -862,11 +885,10 @@ export default function Editor({ resumeData, setResumeData }) {
           ))}
         </div>
         )}
-              </section>
-            </SortableItem>
+      </section>
 
-            <SortableItem id="certifications">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+      {/* Certifications */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader
           title="Certifications"
           section="certifications"
@@ -928,11 +950,10 @@ export default function Editor({ resumeData, setResumeData }) {
           ))}
         </div>
         )}
-              </section>
-            </SortableItem>
+      </section>
 
-            <SortableItem id="languages">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+      {/* Languages */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader
           title="Languages"
           section="languages"
@@ -977,11 +998,10 @@ export default function Editor({ resumeData, setResumeData }) {
           ))}
         </div>
         )}
-              </section>
-            </SortableItem>
+      </section>
 
-            <SortableItem id="volunteer">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+      {/* Volunteer Experience */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader
           title="Volunteer Experience"
           section="volunteer"
@@ -1084,11 +1104,10 @@ export default function Editor({ resumeData, setResumeData }) {
           ))}
         </div>
         )}
-              </section>
-            </SortableItem>
+      </section>
 
-            <SortableItem id="awards">
-              <section className="border border-gray-200 rounded-lg p-4 bg-white">
+      {/* Awards & Honors */}
+      <section className="border border-gray-200 rounded-lg p-4 bg-white">
         <SectionHeader
           title="Awards & Honors"
           section="awards"
@@ -1141,11 +1160,7 @@ export default function Editor({ resumeData, setResumeData }) {
           ))}
         </div>
         )}
-              </section>
-            </SortableItem>
-          </div>
-        </SortableContext>
-      </DndContext>
+      </section>
     </div>
   )
 }
