@@ -4,43 +4,38 @@ import { parseDOCX, parsePDF } from '../utils/documentParser';
 import { parseLinkedInData, getLinkedInImportInstructions } from '../utils/linkedinImport';
 import { exportAsJSON, exportAsText, exportAsHTML } from '../utils/exportUtils';
 import { importFromJSON, duplicateResume } from '../utils/resumeManager';
+import { useNotification } from '../context/NotificationContext';
 
 const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDuplicate }) => {
+  const { showSuccess, showError } = useNotification();
   const [activeTab, setActiveTab] = useState('import');
   const [importMethod, setImportMethod] = useState('file');
   const [textInput, setTextInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
 
   if (!isOpen) return null;
-
-  const showMessage = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 5000);
-  };
 
   const handleFileImport = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsProcessing(true);
-    setMessage({ type: '', text: '' });
 
     try {
       let parsedData = null;
 
       if (file.type === 'application/pdf') {
         parsedData = await parsePDF(file);
-        showMessage('success', 'PDF imported successfully!');
+        showSuccess('PDF imported successfully!');
       } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         parsedData = await parseDOCX(file);
-        showMessage('success', 'DOCX imported successfully!');
+        showSuccess('DOCX imported successfully!');
       } else if (file.type === 'application/json') {
         const text = await file.text();
         parsedData = importFromJSON(text);
-        showMessage('success', 'JSON imported successfully!');
+        showSuccess('JSON imported successfully!');
       } else {
-        showMessage('error', 'Unsupported file type. Please use PDF, DOCX, or JSON.');
+        showError('Unsupported file type. Please use PDF, DOCX, or JSON.');
         setIsProcessing(false);
         return;
       }
@@ -79,7 +74,7 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
     } catch (error) {
       console.error('Import error:', error);
       const errorMsg = error.message || 'Failed to import file. Please try a different file.';
-      showMessage('error', errorMsg);
+      showError(errorMsg);
     } finally {
       setIsProcessing(false);
       e.target.value = '';
@@ -88,7 +83,7 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
 
   const handleLinkedInImport = () => {
     if (!textInput.trim()) {
-      showMessage('error', 'Please paste LinkedIn JSON data');
+      showError('Please paste LinkedIn JSON data');
       return;
     }
 
@@ -124,15 +119,15 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
           }
         };
         setResumeData(mergedData);
-        showMessage('success', 'LinkedIn data imported successfully!');
+        showSuccess('LinkedIn data imported successfully!');
         setTextInput('');
         setTimeout(() => onClose(), 1500);
       } else {
-        showMessage('error', 'Failed to parse LinkedIn data. Please ensure you pasted valid JSON.');
+        showError('Failed to parse LinkedIn data. Please ensure you pasted valid JSON.');
       }
     } catch (error) {
       console.error('LinkedIn import error:', error);
-      showMessage('error', error.message || 'Failed to import LinkedIn data. Please check the format.');
+      showError(error.message || 'Failed to import LinkedIn data. Please check the format.');
     } finally {
       setIsProcessing(false);
     }
@@ -145,29 +140,29 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
       switch (format) {
         case 'json':
           exportAsJSON(resumeData, fileName);
-          showMessage('success', 'Resume exported as JSON!');
+          showSuccess('Resume exported as JSON!');
           break;
         case 'text':
           exportAsText(resumeData, fileName);
-          showMessage('success', 'Resume exported as text!');
+          showSuccess('Resume exported as text!');
           break;
         case 'html':
           exportAsHTML(resumeData, fileName);
-          showMessage('success', 'Resume exported as HTML!');
+          showSuccess('Resume exported as HTML!');
           break;
       }
     } catch (error) {
-      showMessage('error', 'Failed to export resume');
+      showError('Failed to export resume');
     }
   };
 
   const handleDuplicate = () => {
     try {
       onDuplicate();
-      showMessage('success', 'Resume duplicated successfully!');
+      showSuccess('Resume duplicated successfully!');
       setTimeout(() => onClose(), 1500);
     } catch (error) {
-      showMessage('error', 'Failed to duplicate resume');
+      showError('Failed to duplicate resume');
     }
   };
 
@@ -213,19 +208,6 @@ const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDupli
 
         {/* Content */}
         <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
-          {/* Message */}
-          {message.text && (
-            <div
-              className={`mb-4 p-3 rounded-lg ${
-                message.type === 'success'
-                  ? 'bg-green-50 text-green-800 border border-green-200'
-                  : 'bg-red-50 text-red-800 border border-red-200'
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
-
           {activeTab === 'import' ? (
             <div className="space-y-6">
               {/* Import Methods */}

@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Copy } from 'lucide-react'
+import { useNotification } from '../context/NotificationContext'
 
 export default function CoverLetterEditor({ coverLetterData, setCoverLetterData, resumeData }) {
+  const { showSuccess, showWarning, showInfo } = useNotification()
   const [collapsedSections, setCollapsedSections] = useState({
     personalInfo: false,
     jobInfo: false,
@@ -80,25 +82,26 @@ export default function CoverLetterEditor({ coverLetterData, setCoverLetterData,
           fontSize: resumeData.customization?.fontSize || 11
         }
       })
-      alert('Personal info and styling imported from resume!')
+      showSuccess('Personal info and styling imported from resume!')
     }
   }
 
   const generateAISuggestions = () => {
     // Placeholder for AI integration - not connected to actual AI service
     if (!jobDescription.trim()) {
-      alert('Please paste a job description first!')
+      showWarning('Please paste a job description first!')
       return
     }
 
-    alert(
+    showInfo(
       '⚠️ AI Integration Not Active\n\n' +
       'The AI Helper UI is ready but not connected to an AI service.\n\n' +
       'To enable AI-powered suggestions:\n' +
       '1. Set up OpenAI API key\n' +
       '2. Create backend endpoint for secure API calls\n' +
       '3. Replace this function with actual API integration\n\n' +
-      'See README "AI Integration" section for implementation guide.'
+      'See README "AI Integration" section for implementation guide.',
+      8000
     )
   }
 

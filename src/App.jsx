@@ -10,8 +10,10 @@ import { initialResumeData } from './data/resumeData'
 import { initialCoverLetterData } from './data/coverLetterData'
 import { duplicateResume, saveResume } from './utils/resumeManager'
 import { analyzeResume, getScoreColor, getScoreBgColor } from './utils/atsAnalyzer'
+import { useNotification } from './context/NotificationContext'
 
 function App() {
+  const { showSuccess, showError, showConfirm } = useNotification()
   const [resumeData, setResumeData] = useState(() => {
     const saved = localStorage.getItem('resumeData')
     if (saved) {
@@ -176,13 +178,22 @@ function App() {
 
   const handleSave = () => {
     localStorage.setItem('resumeData', JSON.stringify(resumeData))
-    alert('Resume saved successfully!')
+    showSuccess('Resume saved successfully!')
   }
 
-  const handleReset = () => {
-    if (confirm('Reset to default resume? This will clear all your data.')) {
+  const handleReset = async () => {
+    const confirmed = await showConfirm({
+      title: 'Reset to Default Resume',
+      message: 'This will clear all your data. Are you sure you want to continue?',
+      confirmText: 'Reset',
+      cancelText: 'Cancel',
+      type: 'danger'
+    })
+
+    if (confirmed) {
       setResumeData(initialResumeData)
       localStorage.removeItem('resumeData')
+      showSuccess('Resume reset to default successfully!')
     }
   }
 
@@ -201,10 +212,10 @@ function App() {
 
       // Load the duplicated resume
       setResumeData(newResume.data);
-      alert('Resume duplicated successfully!');
+      showSuccess('Resume duplicated successfully!');
     } catch (error) {
       console.error('Duplicate error:', error);
-      alert('Failed to duplicate resume. Please try again.');
+      showError('Failed to duplicate resume. Please try again.');
     }
   }
 
