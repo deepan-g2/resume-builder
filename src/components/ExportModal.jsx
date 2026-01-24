@@ -1,8 +1,9 @@
-import { X, Download, FileJson, FileText, Code } from 'lucide-react';
+import { X, Download, FileJson, FileText, Code, FileType } from 'lucide-react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import { exportAsJSON, exportAsText, exportAsHTML } from '../utils/exportUtils';
 import { useNotification } from '../context/NotificationContext';
 
-const ExportModal = ({ isOpen, onClose, resumeData }) => {
+const ExportModal = ({ isOpen, onClose, resumeData, getPDFComponent, getFileName }) => {
   const { showSuccess, showError } = useNotification();
 
   if (!isOpen) return null;
@@ -58,6 +59,28 @@ const ExportModal = ({ isOpen, onClose, resumeData }) => {
 
             {/* Export Options */}
             <div className="space-y-3">
+              {/* PDF Export - Primary option */}
+              <PDFDownloadLink
+                document={getPDFComponent()}
+                fileName={getFileName()}
+                className="w-full flex items-center space-x-4 p-5 border-2 border-blue-500 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all text-left group no-underline"
+              >
+                {({ loading }) => (
+                  <>
+                    <div className="p-3 bg-blue-600 rounded-lg group-hover:bg-blue-700 transition-colors">
+                      <FileType className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 text-lg">Download as PDF</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {loading ? 'Generating PDF document...' : 'Professional PDF format - ready to send to employers'}
+                      </p>
+                    </div>
+                    <Download className="w-5 h-5 text-blue-600 group-hover:text-blue-700 transition-colors" />
+                  </>
+                )}
+              </PDFDownloadLink>
+
               <button
                 onClick={() => handleExport('json')}
                 className="w-full flex items-center space-x-4 p-5 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left group"
@@ -110,7 +133,7 @@ const ExportModal = ({ isOpen, onClose, resumeData }) => {
             <div className="pt-6 border-t mt-6">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-900">
-                  <strong>Note:</strong> For PDF export, use the "Download PDF" button in the main toolbar. These export formats are for backing up your data or using it in other applications.
+                  <strong>💡 Tip:</strong> Use PDF for sending to employers. Use JSON to back up your data or switch between devices. HTML and Text formats are useful for copying content to other applications.
                 </p>
               </div>
             </div>

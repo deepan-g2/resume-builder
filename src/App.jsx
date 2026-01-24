@@ -310,15 +310,6 @@ function App() {
                   </button>
 
                   <button
-                    onClick={() => setShowExport(true)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
-                    title="Export as JSON, HTML, or Text"
-                  >
-                    <ExportIcon className="w-4 h-4" />
-                    <span>Export</span>
-                  </button>
-
-                  <button
                     onClick={handleDuplicate}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
                     title="Duplicate current resume"
@@ -346,18 +337,14 @@ function App() {
                 <>
                   <div className="h-8 w-px bg-gray-300" />
 
-                  <PDFDownloadLink
-                    document={activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
-                    fileName={getFileName()}
-                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg no-underline"
+                  <button
+                    onClick={() => setShowExport(true)}
+                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
+                    title="Export as PDF, JSON, HTML, or Text"
                   >
-                    {({ loading }) => (
-                      <>
-                        <Download className="w-4 h-4" />
-                        <span>{loading ? 'Generating...' : 'Download PDF'}</span>
-                      </>
-                    )}
-                  </PDFDownloadLink>
+                    <Download className="w-4 h-4" />
+                    <span>Export</span>
+                  </button>
 
                   {/* Reset Button */}
                   <button
@@ -468,14 +455,14 @@ function App() {
         />
       )}
 
-      {/* Export Modal - Only for Resume */}
-      {activeTab === 'resume' && (
-        <ExportModal
-          isOpen={showExport}
-          onClose={() => setShowExport(false)}
-          resumeData={resumeData}
-        />
-      )}
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExport}
+        onClose={() => setShowExport(false)}
+        resumeData={activeTab === 'resume' ? resumeData : coverLetterData}
+        getPDFComponent={activeTab === 'resume' ? getPDFComponent : getCoverLetterPDFComponent}
+        getFileName={getFileName}
+      />
     </div>
   )
 }
