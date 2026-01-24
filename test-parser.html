@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Parser Test</title>
+</head>
+<body>
+    <h1>PDF Parser Test</h1>
+    <div>
+        <input type="file" id="fileInput" accept=".pdf" />
+        <button onclick="testParse()">Parse PDF</button>
+    </div>
+    <pre id="output"></pre>
+
+    <script type="module">
+        import { parsePDF } from './src/utils/documentParser.js';
+
+        window.testParse = async function() {
+            const fileInput = document.getElementById('fileInput');
+            const output = document.getElementById('output');
+
+            if (!fileInput.files[0]) {
+                output.textContent = 'Please select a file first';
+                return;
+            }
+
+            try {
+                output.textContent = 'Parsing PDF...';
+                const result = await parsePDF(fileInput.files[0]);
+                output.textContent = JSON.stringify(result, null, 2);
+
+                console.log('Parsed result:', result);
+                console.log('\n=== FIELD ANALYSIS ===');
+                console.log('Personal Info:', {
+                    hasName: !!result.personalInfo?.fullName,
+                    hasEmail: !!result.personalInfo?.email,
+                    hasPhone: !!result.personalInfo?.phone,
+                    hasLocation: !!result.personalInfo?.location,
+                    hasLinkedIn: !!result.personalInfo?.linkedin,
+                    hasWebsite: !!result.personalInfo?.website
+                });
+                console.log('Experience entries:', result.experience?.length || 0);
+                console.log('Education entries:', result.education?.length || 0);
+                console.log('Skills count:', result.skills?.length || 0);
+                console.log('Has summary:', !!result.summary);
+            } catch (error) {
+                output.textContent = 'Error: ' + error.message;
+                console.error('Error parsing PDF:', error);
+            }
+        };
+    </script>
+</body>
+</html>
