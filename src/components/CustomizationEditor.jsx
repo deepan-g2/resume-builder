@@ -83,7 +83,7 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
           </div>
 
       {/* Quick Presets */}
-      <div className="px-6 py-4 bg-white/50 border-b border-blue-200">
+      <div className="px-6 py-4 border-b border-blue-200">
         <div className="flex items-center space-x-3">
           <span className="text-sm font-semibold text-gray-700">Quick Presets:</span>
           <button
@@ -108,7 +108,7 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-blue-200 bg-white/30">
+      <div className="flex border-b border-blue-200">
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
@@ -117,8 +117,8 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 font-medium text-sm transition-all ${
                 activeTab === tab.id
-                  ? 'bg-white text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
+                  ? 'bg-blue-100/50 text-blue-700 border-b-2 border-blue-600'
+                  : 'text-gray-700 hover:bg-blue-50/30 hover:text-gray-900'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -129,7 +129,7 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
       </div>
 
       {/* Tab Content */}
-      <div className="p-6 bg-white">
+      <div className="p-6">
         {/* Typography Tab */}
         {activeTab === 'typography' && (
           <div className="space-y-6">
