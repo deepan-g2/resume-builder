@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Upload, Download, FileJson, FileText, Code, Copy, FileUp, Linkedin } from 'lucide-react';
 import { parseDOCX, parsePDF } from '../utils/documentParser';
 import { parseLinkedInData, getLinkedInImportInstructions } from '../utils/linkedinImport';
@@ -6,12 +6,19 @@ import { exportAsJSON, exportAsText, exportAsHTML } from '../utils/exportUtils';
 import { importFromJSON, duplicateResume } from '../utils/resumeManager';
 import { useNotification } from '../context/NotificationContext';
 
-const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDuplicate }) => {
+const ImportExportModal = ({ isOpen, onClose, resumeData, setResumeData, onDuplicate, initialTab = 'import' }) => {
   const { showSuccess, showError } = useNotification();
-  const [activeTab, setActiveTab] = useState('import');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [importMethod, setImportMethod] = useState('file');
   const [textInput, setTextInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Update active tab when initialTab changes
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab, isOpen]);
 
   if (!isOpen) return null;
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Download, Save, FileText, Mail, Upload, Copy, Target, Palette, ChevronDown, ChevronUp, Eye } from 'lucide-react'
+import { Download, FileText, Mail, Upload, Download as ExportIcon, Copy, Target, Palette, ChevronDown, ChevronUp, Eye } from 'lucide-react'
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
 import Editor from './components/Editor'
 import CoverLetterEditor from './components/CoverLetterEditor'
@@ -75,6 +75,7 @@ function App() {
   const [showEditor, setShowEditor] = useState(true)
   const [activeTab, setActiveTab] = useState('resume') // 'resume', 'ats', or 'coverLetter'
   const [showImportExport, setShowImportExport] = useState(false)
+  const [importExportTab, setImportExportTab] = useState('import')
   const [atsScore, setAtsScore] = useState(null)
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showCustomization, setShowCustomization] = useState(false)
@@ -179,9 +180,14 @@ function App() {
     }
   }
 
-  const handleSave = () => {
-    localStorage.setItem('resumeData', JSON.stringify(resumeData))
-    showSuccess('Resume saved successfully!')
+  const handleImport = () => {
+    setImportExportTab('import')
+    setShowImportExport(true)
+  }
+
+  const handleExport = () => {
+    setImportExportTab('export')
+    setShowImportExport(true)
   }
 
   const handleReset = async () => {
@@ -225,25 +231,30 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
-        <div className="max-w-full mx-auto px-6 py-3">
+      <header className="bg-gradient-to-r from-white via-blue-50 to-white shadow-md sticky top-0 z-50 border-b-2 border-blue-100">
+        <div className="max-w-full mx-auto px-6 py-4">
           <div className="flex items-center justify-between gap-6">
-            {/* Left Section: Branding + Tabs + ATS Score */}
-            <div className="flex items-center gap-6">
-              {/* Logo and Title */}
-              <div className="flex items-center gap-3">
-                <FileText className="w-7 h-7 text-blue-600" />
-                <h1 className="text-xl font-bold text-gray-900">Resume Builder</h1>
+            {/* Left Section: Branding + Tabs */}
+            <div className="flex items-center gap-8">
+              {/* Logo and Title with enhanced styling */}
+              <div className="flex items-center gap-3 group">
+                <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 tracking-tight">Resume Builder</h1>
+                  <p className="text-xs text-gray-500">Build your career story</p>
+                </div>
               </div>
 
-              {/* Tab Navigation */}
-              <nav className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+              {/* Tab Navigation with improved styling */}
+              <nav className="flex items-center gap-1 bg-white p-1.5 rounded-xl shadow-sm border border-gray-200">
                 <button
                   onClick={() => setActiveTab('resume')}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
                     activeTab === 'resume'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <FileText className="w-4 h-4" />
@@ -251,19 +262,21 @@ function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab('ats')}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
                     activeTab === 'ats'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <Target className="w-4 h-4" />
                   <span>ATS Analysis</span>
                   {atsScore !== null && (
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-                      atsScore >= 80 ? 'bg-green-100 text-green-700' :
-                      atsScore >= 60 ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                      activeTab === 'ats'
+                        ? 'bg-white/20 text-white'
+                        : atsScore >= 80 ? 'bg-green-100 text-green-700' :
+                        atsScore >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
                     }`}>
                       {atsScore}
                     </span>
@@ -271,10 +284,10 @@ function App() {
                 </button>
                 <button
                   onClick={() => setActiveTab('coverLetter')}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
                     activeTab === 'coverLetter'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <Mail className="w-4 h-4" />
@@ -283,14 +296,14 @@ function App() {
               </nav>
             </div>
 
-            {/* Right Section: Actions */}
-            <div className="flex items-center gap-2">
+            {/* Right Section: Actions with improved layout */}
+            <div className="flex items-center gap-3">
               {/* Template Selector - Hide on ATS tab */}
               {activeTab !== 'ats' && (
                 <select
                   value={template}
                   onChange={(e) => setTemplate(e.target.value)}
-                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="px-4 py-2.5 text-sm font-medium border-2 border-gray-200 rounded-lg bg-white hover:border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="modern">Modern</option>
                   <option value="classic">Classic</option>
@@ -309,16 +322,16 @@ function App() {
                 <div className="relative color-picker-container">
                 <button
                   onClick={() => setShowColorPicker(!showColorPicker)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-gray-50 transition-all"
+                  title="Choose accent color"
                 >
                   <Palette className="w-4 h-4" />
-                  <span className="w-4 h-4 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: resumeData.customization?.accentColor || "#2563eb" }} />
-                  <ChevronDown className="w-3 h-3" />
+                  <span className="w-5 h-5 rounded-full border-2 border-gray-300 shadow-sm" style={{ backgroundColor: resumeData.customization?.accentColor || "#2563eb" }} />
                 </button>
 
                 {/* Color Picker Dropdown Menu */}
                 {showColorPicker && (
-                  <div className="absolute right-0 mt-2 p-3 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[240px]">
+                  <div className="absolute right-0 mt-2 p-3 bg-white rounded-lg shadow-xl border border-gray-200 z-50 min-w-[240px]">
                     <div className="flex flex-col gap-2">
                       <span className="text-xs font-semibold text-gray-700 mb-1">Choose Color</span>
                       <div className="flex gap-2">
@@ -374,26 +387,34 @@ function App() {
                 </div>
               )}
 
-              {/* Separator - Hide on ATS tab */}
-              {activeTab !== 'ats' && <div className="h-8 w-px bg-gray-300" />}
-
               {/* Resume-specific actions */}
               {activeTab === 'resume' && (
                 <>
                   <button
-                    onClick={() => setShowImportExport(true)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Import/Export"
+                    onClick={handleImport}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
+                    title="Import from file or LinkedIn"
                   >
                     <Upload className="w-4 h-4" />
+                    <span>Import</span>
+                  </button>
+
+                  <button
+                    onClick={handleExport}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
+                    title="Export as JSON, HTML, or Text"
+                  >
+                    <ExportIcon className="w-4 h-4" />
+                    <span>Export</span>
                   </button>
 
                   <button
                     onClick={handleDuplicate}
-                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Duplicate"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
+                    title="Duplicate current resume"
                   >
                     <Copy className="w-4 h-4" />
+                    <span>Duplicate</span>
                   </button>
                 </>
               )}
@@ -402,31 +423,23 @@ function App() {
               {activeTab !== 'ats' && (
                 <button
                   onClick={() => setShowEditor(!showEditor)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
                   title={showEditor ? 'Preview Only' : 'Show Editor'}
                 >
                   <Eye className="w-4 h-4" />
+                  <span>{showEditor ? 'Hide Editor' : 'Show Editor'}</span>
                 </button>
               )}
-
-              {/* Separator - Hide on ATS tab */}
-              {activeTab !== 'ats' && <div className="h-8 w-px bg-gray-300" />}
 
               {/* Primary Actions - Hide on ATS tab */}
               {activeTab !== 'ats' && (
                 <>
-                  <button
-                    onClick={handleSave}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>Save</span>
-                  </button>
+                  <div className="h-8 w-px bg-gray-300" />
 
                   <PDFDownloadLink
                     document={activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
                     fileName={getFileName()}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm no-underline"
+                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg no-underline"
                   >
                     {({ loading }) => (
                       <>
@@ -439,8 +452,8 @@ function App() {
                   {/* Reset Button */}
                   <button
                     onClick={handleReset}
-                    className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Reset"
+                    className="px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 border-2 border-red-200 hover:bg-red-100 hover:border-red-300 rounded-lg transition-all"
+                    title="Reset to default"
                   >
                     Reset
                   </button>
@@ -543,6 +556,7 @@ function App() {
           resumeData={resumeData}
           setResumeData={setResumeData}
           onDuplicate={handleDuplicate}
+          initialTab={importExportTab}
         />
       )}
     </div>
