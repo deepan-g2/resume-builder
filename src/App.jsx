@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { Download, Save, FileText, Mail, Upload, Copy, Target, Palette, ChevronDown, Eye } from 'lucide-react'
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
-import Editor from './components/Editor'
-import CoverLetterEditor from './components/CoverLetterEditor'
+import { PDFDownloadLink } from '@react-pdf/renderer'
 import ImportExportModal from './components/ImportExportModal'
+import ResumePage from './pages/ResumePage'
+import CoverLetterPage from './pages/CoverLetterPage'
+import ATSDetailsPage from './pages/ATSDetailsPage'
 import { ModernTemplate, ClassicTemplate, MinimalTemplate, ExecutiveTemplate, CreativeTemplate, TechnicalTemplate, AcademicTemplate, InternationalTemplate, PortfolioTemplate } from './components/PDFTemplates'
 import { ModernCoverLetterTemplate, ClassicCoverLetterTemplate, MinimalCoverLetterTemplate, ExecutiveCoverLetterTemplate, CreativeCoverLetterTemplate, TechnicalCoverLetterTemplate, AcademicCoverLetterTemplate, InternationalCoverLetterTemplate, PortfolioCoverLetterTemplate } from './components/CoverLetterTemplates'
 import { initialResumeData } from './data/resumeData'
@@ -12,8 +14,10 @@ import { duplicateResume, saveResume } from './utils/resumeManager'
 import { analyzeResume, getScoreColor, getScoreBgColor } from './utils/atsAnalyzer'
 import { useNotification } from './context/NotificationContext'
 
-function App() {
+function AppContent() {
   const { showSuccess, showError, showConfirm } = useNotification()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [resumeData, setResumeData] = useState(() => {
     const saved = localStorage.getItem('resumeData')
     if (saved) {
@@ -71,10 +75,13 @@ function App() {
 
   const [template, setTemplate] = useState('modern')
   const [showEditor, setShowEditor] = useState(true)
-  const [activeTab, setActiveTab] = useState('resume') // 'resume' or 'coverLetter'
   const [showImportExport, setShowImportExport] = useState(false)
   const [atsScore, setAtsScore] = useState(null)
   const [showColorPicker, setShowColorPicker] = useState(false)
+
+  // Determine active tab based on route
+  const activeTab = location.pathname === '/cover-letter' ? 'coverLetter' : 'resume'
+  const isATSPage = location.pathname === '/ats-details'
 
   const [coverLetterData, setCoverLetterData] = useState(() => {
     const saved = localStorage.getItem('coverLetterData')
@@ -233,46 +240,34 @@ function App() {
                 <h1 className="text-xl font-bold text-gray-900">Resume Builder</h1>
               </div>
 
-              {/* Tab Navigation */}
-              <nav className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-                <button
-                  onClick={() => setActiveTab('resume')}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    activeTab === 'resume'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Resume</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('coverLetter')}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    activeTab === 'coverLetter'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Mail className="w-4 h-4" />
-                  <span>Cover Letter</span>
-                </button>
-              </nav>
-
-              {/* ATS Score Badge - Only show on Resume tab */}
-              {activeTab === 'resume' && atsScore !== null && (
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${
-                  atsScore >= 80 ? 'bg-green-50 text-green-700' :
-                  atsScore >= 60 ? 'bg-yellow-50 text-yellow-700' :
-                  'bg-red-50 text-red-700'
-                }`}>
-                  <Target className="w-4 h-4" />
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xs font-medium">ATS Score</span>
-                    <span className="text-lg font-bold">{atsScore}</span>
-                  </div>
-                </div>
+              {/* Tab Navigation - Only show on main pages */}
+              {!isATSPage && (
+                <nav className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+                  <button
+                    onClick={() => navigate('/')}
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      activeTab === 'resume'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Resume</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/cover-letter')}
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      activeTab === 'coverLetter'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Cover Letter</span>
+                  </button>
+                </nav>
               )}
+
             </div>
 
             {/* Right Section: Actions */}
@@ -434,36 +429,46 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-full mx-auto p-6 overflow-x-hidden">
-        <div className={`grid grid-cols-1 gap-6 ${showEditor ? 'lg:grid-cols-2' : ''}`}>
-          {/* Editor Panel */}
-          {showEditor && (
-            <div className="bg-white rounded-lg shadow-lg p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 140px)' }}>
-              {activeTab === 'resume' ? (
-                <Editor resumeData={resumeData} setResumeData={setResumeData} />
-              ) : (
-                <CoverLetterEditor
+      {!isATSPage && (
+        <main className="max-w-full mx-auto p-6 overflow-x-hidden">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ResumePage
+                  resumeData={resumeData}
+                  setResumeData={setResumeData}
+                  atsScore={atsScore}
+                  getPDFComponent={getPDFComponent}
+                  showEditor={showEditor}
+                />
+              }
+            />
+            <Route
+              path="/cover-letter"
+              element={
+                <CoverLetterPage
                   coverLetterData={coverLetterData}
                   setCoverLetterData={setCoverLetterData}
                   resumeData={resumeData}
+                  getCoverLetterPDFComponent={getCoverLetterPDFComponent}
+                  showEditor={showEditor}
                 />
-              )}
-            </div>
-          )}
+              }
+            />
+          </Routes>
+        </main>
+      )}
 
-          {/* Preview Panel - PDF Viewer */}
-          <div className={`bg-white rounded-lg shadow-lg overflow-hidden ${showEditor ? '' : 'mx-auto w-full max-w-4xl'}`} style={{ height: 'calc(100vh - 140px)' }}>
-            <PDFViewer
-              width="100%"
-              height="100%"
-              showToolbar={false}
-              key={activeTab === 'resume' ? JSON.stringify(resumeData.customization?.sectionOrder || []) : JSON.stringify(coverLetterData)}
-            >
-              {activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
-            </PDFViewer>
-          </div>
-        </div>
-      </main>
+      {/* ATS Details Page */}
+      {isATSPage && (
+        <Routes>
+          <Route
+            path="/ats-details"
+            element={<ATSDetailsPage resumeData={resumeData} />}
+          />
+        </Routes>
+      )}
 
       {/* Import/Export Modal - Only for Resume */}
       {activeTab === 'resume' && (
@@ -476,6 +481,14 @@ function App() {
         />
       )}
     </div>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   )
 }
 

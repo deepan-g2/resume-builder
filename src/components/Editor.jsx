@@ -16,8 +16,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import ATSScore from './ATSScore'
-import CustomizationEditor from './CustomizationEditor'
 
 // Sortable Item Component for Section Reordering
 function SortableItem({ id, children, label }) {
@@ -494,14 +492,6 @@ export default function Editor({ resumeData, setResumeData }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Edit Resume</h2>
-
-      {/* ATS Compatibility Score */}
-      <ATSScore resumeData={resumeData} />
-
-      {/* Customization Studio */}
-      <CustomizationEditor resumeData={resumeData} setResumeData={setResumeData} />
-
       {/* Section Order Control */}
       <section className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
         <SectionHeader title="Section Order (Drag to Reorder)" section="sectionOrder" />
