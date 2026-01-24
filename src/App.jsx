@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Download, FileText, Mail, Upload, Download as ExportIcon, Copy, Target, ChevronDown, ChevronUp, Eye } from 'lucide-react'
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
+import { PDFDownloadLink } from '@react-pdf/renderer'
 import Editor from './components/Editor'
 import CoverLetterEditor from './components/CoverLetterEditor'
 import ImportModal from './components/ImportModal'
 import ExportModal from './components/ExportModal'
 import ATSScore from './components/ATSScore'
 import CustomizationEditor from './components/CustomizationEditor'
+import CustomPDFViewer from './components/CustomPDFViewer'
 import { ModernTemplate, ClassicTemplate, MinimalTemplate, ExecutiveTemplate, CreativeTemplate, TechnicalTemplate, AcademicTemplate, InternationalTemplate, PortfolioTemplate } from './components/PDFTemplates'
 import { ModernCoverLetterTemplate, ClassicCoverLetterTemplate, MinimalCoverLetterTemplate, ExecutiveCoverLetterTemplate, CreativeCoverLetterTemplate, TechnicalCoverLetterTemplate, AcademicCoverLetterTemplate, InternationalCoverLetterTemplate, PortfolioCoverLetterTemplate } from './components/CoverLetterTemplates'
 import { initialResumeData } from './data/resumeData'
@@ -430,17 +431,12 @@ function App() {
               </div>
             )}
 
-            {/* Preview Panel - PDF Viewer */}
+            {/* Preview Panel - Custom PDF Viewer */}
             <div className={`pdf-viewer-container bg-white rounded-lg shadow-lg overflow-hidden ${showEditor ? '' : 'mx-auto w-full max-w-4xl'}`} style={{ height: 'calc(100vh - 140px)' }}>
-              <PDFViewer
-                width="100%"
-                height="100%"
-                showToolbar={false}
-                style={{ border: 'none', background: 'white' }}
+              <CustomPDFViewer
+                document={activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
                 key={activeTab === 'resume' ? JSON.stringify(resumeData.customization?.sectionOrder || []) : JSON.stringify(coverLetterData)}
-              >
-                {activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}
-              </PDFViewer>
+              />
             </div>
           </div>
         )}
