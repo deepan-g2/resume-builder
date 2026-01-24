@@ -47,12 +47,12 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
   }
 
   return (
-    <div className="rounded-xl shadow-sm overflow-hidden">
+    <div className="rounded-xl overflow-hidden">
       {/* Compact Header - Collapsed State */}
       {!isExpanded ? (
         <button
           onClick={() => setIsExpanded(true)}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all px-4 py-2.5 flex items-center justify-between group"
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all px-4 py-2.5 flex items-center justify-between group rounded-xl"
         >
           <div className="flex items-center space-x-2">
             <Sliders className="w-4 h-4 text-white" />
@@ -64,7 +64,7 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
           </div>
         </button>
       ) : (
-        <div className="border-2 border-blue-200 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl"
           {/* Expanded Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
             <div className="flex items-center justify-between">
