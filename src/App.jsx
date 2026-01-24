@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Download, FileText, Mail, Upload, Download as ExportIcon, Copy, Target, ChevronDown, ChevronUp, Eye } from 'lucide-react'
-import { PDFDownloadLink } from '@react-pdf/renderer'
+import { Download, FileText, Mail, Upload, Download as ExportIcon, Copy, Target, Eye } from 'lucide-react'
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
 import Editor from './components/Editor'
 import CoverLetterEditor from './components/CoverLetterEditor'
 import ImportModal from './components/ImportModal'
@@ -79,7 +79,6 @@ function App() {
   const [showImport, setShowImport] = useState(false)
   const [showExport, setShowExport] = useState(false)
   const [atsScore, setAtsScore] = useState(null)
-  const [showCustomization, setShowCustomization] = useState(false)
 
   const [coverLetterData, setCoverLetterData] = useState(() => {
     const saved = localStorage.getItem('coverLetterData')
@@ -387,33 +386,10 @@ function App() {
               <div className="space-y-6 pt-6">
                 {/* Customization Section - Only show on Resume tab */}
                 {activeTab === 'resume' && (
-                  <div className="bg-white rounded-lg shadow-lg">
-                    <button
-                      onClick={() => setShowCustomization(!showCustomization)}
-                      className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors rounded-lg"
-                    >
-                      <div>
-                        <h2 className="text-lg font-semibold text-gray-900">Customization Studio</h2>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Customize fonts, colors, spacing, and layout
-                        </p>
-                      </div>
-                      {showCustomization ? (
-                        <ChevronUp className="w-5 h-5 text-gray-500" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-500" />
-                      )}
-                    </button>
-
-                    {showCustomization && (
-                      <div className="px-6 pb-6 border-t border-gray-200">
-                        <CustomizationEditor
-                          resumeData={resumeData}
-                          setResumeData={setResumeData}
-                        />
-                      </div>
-                    )}
-                  </div>
+                  <CustomizationEditor
+                    resumeData={resumeData}
+                    setResumeData={setResumeData}
+                  />
                 )}
 
                 {/* Main Editor */}

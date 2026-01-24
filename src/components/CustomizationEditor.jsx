@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Palette, Type, Layout, Sliders } from 'lucide-react'
+import { Palette, Type, Layout, Sliders, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function CustomizationEditor({ resumeData, setResumeData }) {
   const [activeTab, setActiveTab] = useState('typography')
+  const [isExpanded, setIsExpanded] = useState(false)
 
   const updateCustomization = (field, value) => {
     setResumeData({
@@ -46,14 +47,40 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
-        <div className="flex items-center space-x-3">
-          <Sliders className="w-6 h-6 text-white" />
-          <h3 className="text-xl font-bold text-white">Customization Studio</h3>
-        </div>
-      </div>
+    <>
+      {/* Collapsed State */}
+      {!isExpanded ? (
+        <button
+          onClick={() => setIsExpanded(true)}
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all px-4 py-2.5 flex items-center justify-between group rounded-xl"
+        >
+          <div className="flex items-center space-x-2">
+            <Sliders className="w-4 h-4 text-white" />
+            <span className="text-sm font-semibold text-white">Customization Studio</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-white/80">Customize fonts, colors, spacing and layout</span>
+            <ChevronDown className="w-4 h-4 text-white group-hover:translate-y-0.5 transition-transform" />
+          </div>
+        </button>
+      ) : (
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
+          {/* Expanded Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Sliders className="w-6 h-6 text-white" />
+                <h3 className="text-xl font-bold text-white">Customization Studio</h3>
+              </div>
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="flex items-center space-x-2 text-white/90 hover:text-white transition-colors"
+              >
+                <span className="text-sm">Collapse</span>
+                <ChevronUp className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
 
       {/* Quick Presets */}
       <div className="px-6 py-4 border-b border-blue-200">
@@ -413,13 +440,15 @@ export default function CustomizationEditor({ resumeData, setResumeData }) {
         )}
       </div>
 
-      {/* Footer Tip */}
-      <div className="px-6 py-3 bg-blue-50 border-t border-blue-200">
-        <p className="text-xs text-gray-600 flex items-center space-x-2">
-          <span className="text-blue-600 font-bold">💡 Tip:</span>
-          <span>Changes are applied in real-time to your resume preview</span>
-        </p>
-      </div>
-    </div>
+          {/* Footer Tip */}
+          <div className="px-6 py-3 bg-blue-50 border-t border-blue-200">
+            <p className="text-xs text-gray-600 flex items-center space-x-2">
+              <span className="text-blue-600 font-bold">💡 Tip:</span>
+              <span>Changes are applied in real-time to your resume preview</span>
+            </p>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
