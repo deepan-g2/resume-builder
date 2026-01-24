@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Text Fixing</title>
+</head>
+<body>
+    <h1>Test Spaced Text Fixing</h1>
+    <textarea id="input" rows="10" cols="80" placeholder="Paste spaced text here">J o h n   D o e  j o h n . d o e @ e m ai l . c om   (555)   123-4567   N e w   Y or k ,   N Y</textarea>
+    <br>
+    <button onclick="testFix()">Fix Text</button>
+    <h2>Result:</h2>
+    <pre id="output"></pre>
+
+    <script>
+        function fixSpacedText(text) {
+          const testSample = text.substring(0, 200);
+          const tokens = testSample.split(/\s+/).filter(t => t.length > 0);
+          const singleCharTokens = tokens.filter(t => t.length === 1);
+
+          if (singleCharTokens.length > tokens.length * 0.4) {
+            console.log('Detected spaced-out text (single char ratio:', (singleCharTokens.length / tokens.length).toFixed(2), '), fixing...');
+
+            const allTokens = text.split(/\s+/);
+            const fixed = [];
+            let buffer = '';
+
+            for (let i = 0; i < allTokens.length; i++) {
+              const token = allTokens[i];
+
+              if (token.length === 1 && /[a-zA-Z]/.test(token)) {
+                buffer += token;
+              } else if (token.length === 1 && /[.,;:!?@()-]/.test(token)) {
+                if (buffer) {
+                  fixed.push(buffer);
+                  buffer = '';
+                }
+                if (fixed.length > 0 && /[.,;:!?]/.test(token)) {
+                  fixed[fixed.length - 1] += token;
+                } else {
+                  fixed.push(token);
+                }
+              } else {
+                if (buffer) {
+                  fixed.push(buffer);
+                  buffer = '';
+                }
+                if (token) {
+                  fixed.push(token);
+                }
+              }
+            }
+
+            if (buffer) {
+              fixed.push(buffer);
+            }
+
+            text = fixed.join(' ');
+            console.log('Fixed text preview:', text.substring(0, 300));
+          }
+
+          return text;
+        }
+
+        function testFix() {
+            const input = document.getElementById('input').value;
+            const output = document.getElementById('output');
+
+            console.log('Input:', input);
+            const fixed = fixSpacedText(input);
+            console.log('Output:', fixed);
+
+            output.textContent = fixed;
+        }
+    </script>
+</body>
+</html>

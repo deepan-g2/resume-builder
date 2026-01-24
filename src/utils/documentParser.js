@@ -41,9 +41,32 @@ export const parsePDF = async (file) => {
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items.map(item => item.str).join(' ');
-      fullText += pageText + '\n';
+
+      // Group text items by Y position (lines)
+      const lineMap = new Map();
+
+      for (const item of textContent.items) {
+        const y = Math.round(item.transform[5]); // Y coordinate
+        if (!lineMap.has(y)) {
+          lineMap.set(y, []);
+        }
+        lineMap.get(y).push(item.str);
+      }
+
+      // Sort by Y coordinate (top to bottom) and join
+      const sortedLines = Array.from(lineMap.entries())
+        .sort((a, b) => b[0] - a[0]) // Sort descending (top to bottom)
+        .map(([y, texts]) => texts.join(' '));
+
+      fullText += sortedLines.join('\n') + '\n';
     }
+
+    console.log('Raw extracted text preview:', fullText.substring(0, 500));
+
+    // Fix spaced-out text (e.g., "J o h n" -> "John")
+    fullText = fixSpacedText(fullText);
+
+    console.log('Fixed text preview:', fullText.substring(0, 500));
 
     return parseResumeText(fullText);
   } catch (error) {
@@ -64,6 +87,67 @@ export const parsePDF = async (file) => {
 
     throw new Error('Failed to parse PDF file. Try DOCX or JSON import as an alternative.');
   }
+};
+
+// Fix spaced-out text that sometimes occurs in PDF extraction
+const fixSpacedText = (text) => {
+  // Check if text has the characteristic spaced pattern
+  // e.g., "J o h n   D o e" where single chars are separated by spaces
+  const testSample = text.substring(0, 200);
+  const tokens = testSample.split(/\s+/).filter(t => t.length > 0);
+  const singleCharTokens = tokens.filter(t => t.length === 1);
+
+  // If more than 40% of tokens are single characters, it's likely spaced text
+  if (singleCharTokens.length > tokens.length * 0.4) {
+    console.log('Detected spaced-out text (single char ratio:', (singleCharTokens.length / tokens.length).toFixed(2), '), fixing...');
+
+    // Strategy: Split by spaces, then merge single characters until we hit a multi-char word or punctuation
+    const allTokens = text.split(/\s+/);
+    const fixed = [];
+    let buffer = '';
+
+    for (let i = 0; i < allTokens.length; i++) {
+      const token = allTokens[i];
+
+      if (token.length === 1 && /[a-zA-Z]/.test(token)) {
+        // Single letter - add to buffer
+        buffer += token;
+      } else if (token.length === 1 && /[.,;:!?@()-]/.test(token)) {
+        // Punctuation - add to previous word
+        if (buffer) {
+          fixed.push(buffer);
+          buffer = '';
+        }
+        // Attach punctuation to last word if possible
+        if (fixed.length > 0 && /[.,;:!?]/.test(token)) {
+          fixed[fixed.length - 1] += token;
+        } else {
+          fixed.push(token);
+        }
+      } else {
+        // Multi-character token or number - flush buffer and add token
+        if (buffer) {
+          fixed.push(buffer);
+          buffer = '';
+        }
+        if (token) {
+          fixed.push(token);
+        }
+      }
+    }
+
+    // Flush remaining buffer
+    if (buffer) {
+      fixed.push(buffer);
+    }
+
+    // Join with single spaces
+    text = fixed.join(' ');
+
+    console.log('Fixed text preview:', text.substring(0, 300));
+  }
+
+  return text;
 };
 
 // Parse resume text and extract structured data
