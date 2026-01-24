@@ -112,20 +112,16 @@
   animation: scale-in 0.2s ease-out;
 }
 
-/* Fix for PDFViewer black sides - make it fill the container properly */
-.pdf-viewer-container iframe {
-  background-color: white !important;
-}
-
-/* Override react-pdf-renderer's default dark background */
+/* Fix for PDFViewer black sides - ensure white background throughout */
 .pdf-viewer-container {
   background: white !important;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-/* Ensure PDF canvas fills the available space without black bars */
-.pdf-viewer-container canvas {
+.pdf-viewer-container > * {
   background: white !important;
-  width: 100% !important;
-  height: auto !important;
-  max-width: 100% !important;
+  flex: 1;
+  max-width: 100%;
 }

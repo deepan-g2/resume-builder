@@ -436,6 +436,7 @@ function App() {
                 width="100%"
                 height="100%"
                 showToolbar={false}
+                style={{ border: 'none', background: 'white' }}
                 key={activeTab === 'resume' ? JSON.stringify(resumeData.customization?.sectionOrder || []) : JSON.stringify(coverLetterData)}
               >
                 {activeTab === 'resume' ? getPDFComponent() : getCoverLetterPDFComponent()}

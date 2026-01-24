@@ -30,6 +30,7 @@ export default function CoverLetterPage({
           width="100%"
           height="100%"
           showToolbar={false}
+          style={{ border: 'none', background: 'white' }}
           key={JSON.stringify(coverLetterData)}
         >
           {getCoverLetterPDFComponent()}
